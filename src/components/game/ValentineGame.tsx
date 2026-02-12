@@ -37,7 +37,7 @@ const ValentineGame: React.FC = () => {
   const [dir, setDir] = useState<Direction>("down");
   const [nearNpc, setNearNpc] = useState(false);
   const [fireworks, setFireworks] = useState<{ id: number; x: number; y: number; color: string }[]>([]);
-  const [monkeys, setMonkeys] = useState<{ id: number; x: number; y: number; vy: number }[]>([]);
+  const [monkeys, setMonkeys] = useState<{ id: number; x: number; y: number; vy: number; swinging?: boolean }[]>([]);
   const keysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
   const fwIntervalRef = useRef<number>(0);
@@ -132,27 +132,28 @@ const ValentineGame: React.FC = () => {
   // Fireworks effect
   useEffect(() => {
     if (gameState !== "yes-ending") return;
-    const colors = ["#FF1493", "#FFD700", "#FF4500", "#00FF7F", "#1E90FF", "#FF69B4", "#FFA500"];
+    const colors = ["#FF1493", "#FFD700", "#FF4500", "#00FF7F", "#1E90FF", "#FF69B4", "#FFA500", "#FF00FF", "#00FFFF"];
     const id = window.setInterval(() => {
       setFireworks(prev => [
-        ...prev.slice(-30),
-        ...Array.from({ length: 5 }, (_, i) => ({
+        ...prev.slice(-50),
+        ...Array.from({ length: 10 }, (_, i) => ({
           id: Date.now() + i,
           x: Math.random() * ROOM_W,
           y: Math.random() * ROOM_H,
           color: colors[Math.floor(Math.random() * colors.length)],
         })),
       ]);
-    }, 300);
+    }, 200);
     fwIntervalRef.current = id;
 
-    // Monkeys
+    // More monkeys, some swinging
     setMonkeys(
-      Array.from({ length: 5 }, (_, i) => ({
+      Array.from({ length: 10 }, (_, i) => ({
         id: i,
         x: Math.random() * (ROOM_W - 28),
         y: Math.random() * (ROOM_H - 60) + 30,
         vy: -(Math.random() * 3 + 2),
+        swinging: i % 3 === 0,
       }))
     );
 
@@ -212,6 +213,10 @@ const ValentineGame: React.FC = () => {
           0%, 100% { transform: rotate(0deg); }
           25% { transform: rotate(-5deg); }
           75% { transform: rotate(5deg); }
+        }
+        @keyframes monkeySwing {
+          0%, 100% { transform: rotate(-20deg); }
+          50% { transform: rotate(20deg); }
         }
       `}</style>
 
@@ -378,7 +383,7 @@ const ValentineGame: React.FC = () => {
 
             {/* Monkeys */}
             {monkeys.map(m => (
-              <MonkeySprite key={m.id} style={{ left: m.x, top: m.y }} />
+              <MonkeySprite key={m.id} swinging={m.swinging} style={{ left: m.x, top: m.y }} />
             ))}
 
             {/* Message */}
