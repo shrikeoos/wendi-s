@@ -5,8 +5,8 @@ type GameState = "room1" | "room2" | "dialogue" | "yes-ending" | "no-ending";
 type Direction = "down" | "up" | "left" | "right";
 
 const TILE = 32;
-const ROOM_W = 640;
-const ROOM_H = 480;
+const ROOM_W = 800;
+const ROOM_H = 600;
 const SPEED = 4;
 
 // Wardrobe positions in room 1
@@ -146,26 +146,33 @@ const ValentineGame: React.FC = () => {
     }, 200);
     fwIntervalRef.current = id;
 
-    // More monkeys, some swinging
-    setMonkeys(
-      Array.from({ length: 10 }, (_, i) => ({
-        id: i,
-        x: Math.random() * (ROOM_W - 28),
-        y: Math.random() * (ROOM_H - 60) + 30,
-        vy: -(Math.random() * 3 + 2),
-        swinging: i % 3 === 0,
-      }))
-    );
+    // Bouncing monkeys + swinging monkeys (from top like Spider-Man)
+    const bouncers = Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      x: Math.random() * (ROOM_W - 28),
+      y: Math.random() * (ROOM_H - 60) + 30,
+      vy: -(Math.random() * 3 + 2),
+      swinging: false,
+    }));
+    const swingers = Array.from({ length: 5 }, (_, i) => ({
+      id: 100 + i,
+      x: 80 + i * (ROOM_W - 160) / 4,
+      y: 0,
+      vy: 0,
+      swinging: true,
+    }));
+    setMonkeys([...bouncers, ...swingers]);
 
     return () => clearInterval(id);
   }, [gameState]);
 
-  // Monkey bounce animation
+  // Monkey bounce animation (only for non-swinging)
   useEffect(() => {
     if (gameState !== "yes-ending") return;
     const id = setInterval(() => {
       setMonkeys(prev =>
         prev.map(m => {
+          if (m.swinging) return m; // swinging handled by CSS
           let ny = m.y + m.vy;
           let nvy = m.vy + 0.3;
           if (ny > ROOM_H - 40) {
@@ -215,8 +222,13 @@ const ValentineGame: React.FC = () => {
           75% { transform: rotate(5deg); }
         }
         @keyframes monkeySwing {
-          0%, 100% { transform: rotate(-20deg); }
-          50% { transform: rotate(20deg); }
+          0%, 100% { transform: rotate(-15deg); }
+          50% { transform: rotate(15deg); }
+        }
+        @keyframes spiderSwing {
+          0% { transform: rotate(-35deg); }
+          50% { transform: rotate(35deg); }
+          100% { transform: rotate(-35deg); }
         }
       `}</style>
 
@@ -382,9 +394,17 @@ const ValentineGame: React.FC = () => {
             ))}
 
             {/* Monkeys */}
-            {monkeys.map(m => (
-              <MonkeySprite key={m.id} swinging={m.swinging} style={{ left: m.x, top: m.y }} />
-            ))}
+            {monkeys.map(m =>
+              m.swinging ? (
+                <div key={m.id} className="absolute" style={{ left: m.x, top: 0, zIndex: 15, animation: `spiderSwing 1.5s ease-in-out infinite`, animationDelay: `${(m.id % 5) * 0.3}s`, transformOrigin: "top center" }}>
+                  {/* Vine/web line */}
+                  <div style={{ width: 2, height: 120, background: "#556B2F", margin: "0 auto" }} />
+                  <MonkeySprite swinging style={{ position: "relative", left: -13 }} />
+                </div>
+              ) : (
+                <MonkeySprite key={m.id} style={{ left: m.x, top: m.y }} />
+              )
+            )}
 
             {/* Message */}
             <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ zIndex: 20 }}>
