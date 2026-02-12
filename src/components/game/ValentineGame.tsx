@@ -5,8 +5,8 @@ type GameState = "room1" | "room2" | "dialogue" | "yes-ending" | "no-ending";
 type Direction = "down" | "up" | "left" | "right";
 
 const TILE = 32;
-const ROOM_W = 800;
-const ROOM_H = 600;
+const ROOM_W = 1024;
+const ROOM_H = 768;
 const SPEED = 4;
 
 // Wardrobe positions in room 1
