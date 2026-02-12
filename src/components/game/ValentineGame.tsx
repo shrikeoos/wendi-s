@@ -5,8 +5,8 @@ type GameState = "room1" | "room2" | "dialogue" | "yes-ending" | "no-ending";
 type Direction = "down" | "up" | "left" | "right";
 
 const TILE = 32;
-const ROOM_W = 480;
-const ROOM_H = 384;
+const ROOM_W = 640;
+const ROOM_H = 480;
 const SPEED = 4;
 
 // Wardrobe positions in room 1
@@ -312,7 +312,7 @@ const ValentineGame: React.FC = () => {
                   boxShadow: "0 4px 12px rgba(255,105,180,0.3)",
                 }}>
                   <p style={{ fontSize: 10, fontFamily: "'Press Start 2P', monospace", color: "#333", lineHeight: 1.6, marginBottom: 12 }}>
-                    Will you be my<br />Valentine? 💕
+                    Hey Wendi! Will you<br />be my Valentine? ❤️
                   </p>
                   <div className="flex gap-2 justify-center">
                     <button
