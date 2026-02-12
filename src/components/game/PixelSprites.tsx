@@ -107,24 +107,33 @@ export const Door: React.FC = () => (
   </div>
 );
 
-// Firework particle
-export const Firework: React.FC<{ x: number; y: number; color: string }> = ({ x, y, color }) => (
-  <div
-    className="absolute animate-ping"
-    style={{
-      left: x,
-      top: y,
-      width: 6,
-      height: 6,
-      background: color,
-      borderRadius: "50%",
-    }}
-  />
-);
+// Firework burst with multiple particles
+export const Firework: React.FC<{ x: number; y: number; color: string }> = ({ x, y, color }) => {
+  const particles = [
+    { dx: 0, dy: -14 }, { dx: 10, dy: -10 }, { dx: 14, dy: 0 }, { dx: 10, dy: 10 },
+    { dx: 0, dy: 14 }, { dx: -10, dy: 10 }, { dx: -14, dy: 0 }, { dx: -10, dy: -10 },
+    { dx: 7, dy: -16 }, { dx: -7, dy: -16 }, { dx: 16, dy: 7 }, { dx: -16, dy: 7 },
+  ];
+  return (
+    <div className="absolute" style={{ left: x, top: y }}>
+      <div className="animate-ping" style={{ position: "absolute", left: -5, top: -5, width: 10, height: 10, background: "white", borderRadius: "50%", opacity: 0.8 }} />
+      {particles.map((p, i) => (
+        <div key={i} className="animate-ping" style={{ position: "absolute", left: p.dx - 3, top: p.dy - 3, width: 6, height: 6, background: color, borderRadius: "50%", animationDelay: `${i * 0.04}s` }} />
+      ))}
+      {particles.slice(0, 8).map((p, i) => (
+        <div key={`t${i}`} style={{ position: "absolute", left: p.dx * 0.5 - 1, top: p.dy * 0.5 - 1, width: 3, height: 3, background: color, borderRadius: "50%", opacity: 0.5 }} />
+      ))}
+    </div>
+  );
+};
 
-// Monkey sprite
-export const MonkeySprite: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
-  <div className="absolute" style={{ width: 28, height: 28, imageRendering: "pixelated", ...style }}>
+// Monkey sprite with optional swinging animation
+export const MonkeySprite: React.FC<{ style?: React.CSSProperties; swinging?: boolean }> = ({ style, swinging }) => (
+  <div className="absolute" style={{
+    width: 28, height: 28, imageRendering: "pixelated",
+    ...(swinging ? { animation: "monkeySwing 0.8s ease-in-out infinite", transformOrigin: "top center" } : {}),
+    ...style,
+  }}>
     {/* Head */}
     <div className="absolute" style={{ top: 0, left: 4, width: 20, height: 16, background: "#8B4513", borderRadius: "8px 8px 4px 4px" }} />
     {/* Face */}
@@ -132,13 +141,20 @@ export const MonkeySprite: React.FC<{ style?: React.CSSProperties }> = ({ style 
     {/* Eyes */}
     <div className="absolute" style={{ top: 6, left: 10, width: 3, height: 3, background: "#000" }} />
     <div className="absolute" style={{ top: 6, left: 16, width: 3, height: 3, background: "#000" }} />
-    {/* Mouth/smile */}
+    {/* Mouth */}
     <div className="absolute" style={{ top: 10, left: 12, width: 5, height: 2, background: "#8B0000", borderRadius: "0 0 3px 3px" }} />
     {/* Ears */}
     <div className="absolute" style={{ top: 4, left: 0, width: 6, height: 6, background: "#DEB887", borderRadius: "50%" }} />
     <div className="absolute" style={{ top: 4, left: 22, width: 6, height: 6, background: "#DEB887", borderRadius: "50%" }} />
     {/* Body */}
     <div className="absolute" style={{ top: 16, left: 6, width: 16, height: 10, background: "#8B4513", borderRadius: "0 0 4px 4px" }} />
+    {/* Arms (raised if swinging) */}
+    {swinging && (
+      <>
+        <div className="absolute" style={{ top: 2, left: 10, width: 3, height: 16, background: "#8B4513", borderRadius: 2, transform: "rotate(-10deg)" }} />
+        <div className="absolute" style={{ top: 2, left: 16, width: 3, height: 16, background: "#8B4513", borderRadius: 2, transform: "rotate(10deg)" }} />
+      </>
+    )}
     {/* Tail */}
     <div className="absolute" style={{ top: 18, left: 22, width: 6, height: 3, background: "#8B4513", borderRadius: "0 4px 4px 0" }} />
   </div>
