@@ -12,8 +12,18 @@ const SPEED = 4;
 // Wardrobe positions in room 1
 const WARDROBES = [
   { x: 60, y: 40, variant: 0 },
-  { x: 200, y: 260, variant: 1 },
-  { x: 360, y: 100, variant: 2 },
+  { x: 220, y: 50, variant: 1 },
+  { x: 420, y: 80, variant: 2 },
+  { x: 700, y: 40, variant: 3 },
+  { x: 880, y: 100, variant: 4 },
+  { x: 120, y: 280, variant: 5 },
+  { x: 350, y: 320, variant: 0 },
+  { x: 580, y: 260, variant: 1 },
+  { x: 800, y: 350, variant: 2 },
+  { x: 60, y: 520, variant: 3 },
+  { x: 300, y: 560, variant: 4 },
+  { x: 550, y: 520, variant: 5 },
+  { x: 780, y: 580, variant: 3 },
 ];
 
 // Door position (right wall)

@@ -71,28 +71,66 @@ export const MaleSprite: React.FC<{ collapsed?: boolean }> = ({ collapsed }) => 
 
 // Wardrobe with overflowing clothes
 export const Wardrobe: React.FC<{ variant?: number }> = ({ variant = 0 }) => {
-  const clothesColors = [
-    ["#FF69B4", "#FFD700", "#00CED1"],
-    ["#FF6347", "#9370DB", "#32CD32"],
-    ["#FF1493", "#00BFFF", "#FFA500"],
+  const clothesPalettes = [
+    ["#FF69B4", "#FFD700", "#00CED1", "#FF6347"],
+    ["#FF6347", "#9370DB", "#32CD32", "#FF1493"],
+    ["#FF1493", "#00BFFF", "#FFA500", "#7B68EE"],
+    ["#E74C3C", "#2ECC71", "#F1C40F", "#9B59B6"],
+    ["#1ABC9C", "#E91E63", "#FF5722", "#3F51B5"],
+    ["#FF4081", "#FFEB3B", "#00E5FF", "#76FF03"],
   ];
-  const colors = clothesColors[variant % 3];
+  const colors = clothesPalettes[variant % 6];
+
+  // Different wardrobe wood colors
+  const woodColors = ["#8B6914", "#5D4037", "#A0522D", "#6B3A2A", "#8B7355", "#4E342E"];
+  const wood = woodColors[variant % 6];
+  const woodDark = "#3E2723";
+
+  // Different wardrobe styles based on variant
+  const isWide = variant % 3 === 1;
+  const isTall = variant % 3 === 2;
+  const w = isWide ? 52 : 40;
+  const h = isTall ? 56 : 48;
 
   return (
-    <div className="relative" style={{ width: 40, height: 48, imageRendering: "pixelated" }}>
+    <div className="relative" style={{ width: w, height: h, imageRendering: "pixelated" }}>
       {/* Wardrobe body */}
-      <div className="absolute" style={{ top: 8, left: 2, width: 36, height: 40, background: "#8B6914", border: "2px solid #6B4F12" }} />
-      {/* Door line */}
-      <div className="absolute" style={{ top: 10, left: 19, width: 2, height: 36, background: "#6B4F12" }} />
+      <div className="absolute" style={{ top: 8, left: 2, width: w - 4, height: h - 8, background: wood, border: `2px solid ${woodDark}`, borderRadius: isTall ? "4px 4px 0 0" : 0 }} />
+      {/* Door line(s) */}
+      {isWide ? (
+        <>
+          <div className="absolute" style={{ top: 10, left: Math.floor(w / 3), width: 2, height: h - 12, background: woodDark }} />
+          <div className="absolute" style={{ top: 10, left: Math.floor(w * 2 / 3), width: 2, height: h - 12, background: woodDark }} />
+        </>
+      ) : (
+        <div className="absolute" style={{ top: 10, left: Math.floor(w / 2), width: 2, height: h - 12, background: woodDark }} />
+      )}
       {/* Knobs */}
-      <div className="absolute" style={{ top: 26, left: 15, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
-      <div className="absolute" style={{ top: 26, left: 23, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
-      {/* Overflowing clothes */}
-      <div className="absolute" style={{ top: 2, left: 5, width: 14, height: 8, background: colors[0], borderRadius: "4px 4px 0 0", transform: "rotate(-10deg)" }} />
-      <div className="absolute" style={{ top: 0, left: 20, width: 12, height: 10, background: colors[1], borderRadius: "4px 4px 0 0", transform: "rotate(8deg)" }} />
-      {/* Sleeve hanging out */}
-      <div className="absolute" style={{ top: 30, left: -4, width: 8, height: 4, background: colors[2], borderRadius: 2, transform: "rotate(-15deg)" }} />
-      <div className="absolute" style={{ top: 38, left: 34, width: 10, height: 4, background: colors[0], borderRadius: 2, transform: "rotate(10deg)" }} />
+      <div className="absolute" style={{ top: Math.floor(h / 2), left: Math.floor(w / 2) - 6, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: Math.floor(h / 2), left: Math.floor(w / 2) + 4, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
+
+      {/* Overflowing clothes - top */}
+      <div className="absolute" style={{ top: 0, left: 3, width: 14, height: 10, background: colors[0], borderRadius: "4px 4px 0 0", transform: "rotate(-12deg)" }} />
+      <div className="absolute" style={{ top: -2, left: w - 18, width: 12, height: 12, background: colors[1], borderRadius: "4px 4px 0 0", transform: "rotate(8deg)" }} />
+      <div className="absolute" style={{ top: 2, left: Math.floor(w / 2) - 5, width: 10, height: 8, background: colors[2], borderRadius: "3px 3px 0 0", transform: "rotate(-5deg)" }} />
+
+      {/* Sleeve/cloth hanging out sides */}
+      <div className="absolute" style={{ top: Math.floor(h * 0.6), left: -6, width: 10, height: 5, background: colors[3], borderRadius: 2, transform: "rotate(-18deg)" }} />
+      <div className="absolute" style={{ top: Math.floor(h * 0.4), left: w - 4, width: 12, height: 4, background: colors[0], borderRadius: 2, transform: "rotate(12deg)" }} />
+
+      {/* Dangling item from bottom */}
+      <div className="absolute" style={{ top: h - 4, left: 6, width: 8, height: 8, background: colors[1], borderRadius: "0 0 4px 4px", transform: "rotate(5deg)" }} />
+
+      {/* Extra scarf/sock hanging */}
+      {variant % 2 === 0 && (
+        <div className="absolute" style={{ top: -4, left: w - 8, width: 6, height: 14, background: colors[3], borderRadius: 3, transform: "rotate(20deg)" }} />
+      )}
+      {variant % 2 === 1 && (
+        <>
+          <div className="absolute" style={{ top: h - 2, left: w - 14, width: 14, height: 5, background: colors[2], borderRadius: 2, transform: "rotate(-8deg)" }} />
+          <div className="absolute" style={{ top: Math.floor(h * 0.7), left: -4, width: 6, height: 10, background: colors[1], borderRadius: "2px 0 0 2px" }} />
+        </>
+      )}
     </div>
   );
 };
