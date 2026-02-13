@@ -5,6 +5,19 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
   // 16x16 pixel grid character
   return (
     <div className="relative" style={{ width: 32, height: 32, imageRendering: "pixelated" }}>
+      {/* Tiara */}
+      <div className="absolute" style={{ top: -4, left: 6, width: 20, height: 8, zIndex: 2 }}>
+        {/* Base band */}
+        <div className="absolute" style={{ bottom: 0, left: 0, width: 20, height: 3, background: "#FFD700" }} />
+        {/* Points */}
+        <div className="absolute" style={{ bottom: 3, left: 2, width: 3, height: 4, background: "#FFD700" }} />
+        <div className="absolute" style={{ bottom: 3, left: 8, width: 4, height: 6, background: "#FFD700" }} />
+        <div className="absolute" style={{ bottom: 3, left: 15, width: 3, height: 4, background: "#FFD700" }} />
+        {/* Gems */}
+        <div className="absolute" style={{ bottom: 5, left: 9, width: 2, height: 2, background: "#FF69B4" }} />
+        <div className="absolute" style={{ bottom: 4, left: 3, width: 2, height: 2, background: "#00CED1" }} />
+        <div className="absolute" style={{ bottom: 4, left: 15, width: 2, height: 2, background: "#00CED1" }} />
+      </div>
       {/* Hair */}
       <div className="absolute" style={{ top: 0, left: 4, width: 24, height: 10, background: "#8B4513", borderRadius: "6px 6px 0 0" }} />
       <div className="absolute" style={{ top: 6, left: 2, width: 4, height: 12, background: "#8B4513" }} />
