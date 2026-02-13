@@ -424,7 +424,7 @@ const ValentineGame: React.FC = () => {
                 textAlign: "center",
                 lineHeight: 2,
               }}>
-                🎉 Happy<br />Valentine's Day! 🎉
+                🎉 Happy Valentine's Day! 🎉
               </div>
               <div className="mt-4" style={{ fontSize: 28 }}>💕🐵💖🐵💕</div>
             </div>
