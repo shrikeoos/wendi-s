@@ -242,9 +242,6 @@ const ValentineGame: React.FC = () => {
         }
       `}</style>
 
-      <h1 className="mb-4 text-lg" style={{ color: "#FF69B4", fontFamily: "'Press Start 2P', monospace", fontSize: 14 }}>
-        💕 Valentine's Quest 💕
-      </h1>
 
       {/* Game viewport */}
       <div
@@ -254,7 +251,7 @@ const ValentineGame: React.FC = () => {
           height: ROOM_H,
           border: "4px solid #333",
           borderRadius: 4,
-          background: gameState === "room1" ? "#F5F5F5" : gameState === "room2" ? "#FFF0F5" : "#FFF0F5",
+          background: gameState === "room1" ? "#FFF5F8" : gameState === "room2" ? "#FFF0F5" : "#FFF0F5",
           boxShadow: "0 0 20px rgba(255,105,180,0.3)",
         }}
         tabIndex={0}
@@ -265,7 +262,7 @@ const ValentineGame: React.FC = () => {
             {/* Floor pattern */}
             <div className="absolute inset-0" style={{ background: "repeating-conic-gradient(#f0f0f0 0% 25%, #e8e8e8 0% 50%) 0 0 / 32px 32px" }} />
             {/* Walls */}
-            <div className="absolute top-0 left-0 right-0" style={{ height: 4, background: "#999" }} />
+            <div className="absolute top-0 left-0 right-0" style={{ height: 6, background: "#FF69B4" }} />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: 4, background: "#999" }} />
             <div className="absolute top-0 left-0 bottom-0" style={{ width: 4, background: "#999" }} />
             <div className="absolute top-0 right-0 bottom-0" style={{ width: 4, background: "#999" }} />
