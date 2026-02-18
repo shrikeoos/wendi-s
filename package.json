@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://shrikeoos.github.io/wendi-s",
+  "homepage": "https://shrikeoos.github.io/wendi-s/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
