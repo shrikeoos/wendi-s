@@ -26,8 +26,10 @@ const WARDROBES = [
   { x: 780, y: 580, variant: 3 },
 ];
 
-// Door position (right wall)
-const DOOR = { x: ROOM_W - 32, y: ROOM_H / 2 - 22 };
+// Door dimensions for collision
+const DOOR_W = 28;
+const DOOR_H = 44;
+const DOOR_PAD = 40; // padding from room edges
 
 // NPC position in room 2
 const NPC = { x: ROOM_W / 2 - 16, y: ROOM_H / 2 - 16 };
@@ -41,6 +43,23 @@ function rectsOverlap(
   return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }
 
+// Generate a random door position that doesn't overlap any wardrobes
+function randomDoorPosition(): { x: number; y: number } {
+  const maxAttempts = 200;
+  for (let i = 0; i < maxAttempts; i++) {
+    const x = DOOR_PAD + Math.random() * (ROOM_W - DOOR_W - DOOR_PAD * 2);
+    const y = DOOR_PAD + Math.random() * (ROOM_H - DOOR_H - DOOR_PAD * 2);
+    // Check overlap with every wardrobe (with a 10px gap)
+    const gap = 10;
+    const overlaps = WARDROBES.some(w =>
+      rectsOverlap(x - gap, y - gap, DOOR_W + gap * 2, DOOR_H + gap * 2, w.x, w.y, 40, 48)
+    );
+    if (!overlaps) return { x, y };
+  }
+  // Fallback if no valid spot found (unlikely)
+  return { x: ROOM_W - 32, y: ROOM_H / 2 - 22 };
+}
+
 const ValentineGame: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>("room1");
   const [pos, setPos] = useState({ x: ROOM_W / 2 - 16, y: ROOM_H / 2 - 16 });
@@ -48,6 +67,8 @@ const ValentineGame: React.FC = () => {
   const [nearNpc, setNearNpc] = useState(false);
   const [fireworks, setFireworks] = useState<{ id: number; x: number; y: number; color: string }[]>([]);
   const [monkeys, setMonkeys] = useState<{ id: number; x: number; y: number; vy: number; swinging?: boolean }[]>([]);
+  const [doorPos, setDoorPos] = useState(() => randomDoorPosition());
+  const doorPosRef = useRef(doorPos);
   const keysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
   const fwIntervalRef = useRef<number>(0);
@@ -56,6 +77,9 @@ const ValentineGame: React.FC = () => {
   useEffect(() => {
     if (gameState === "room1") {
       setPos({ x: ROOM_W / 2 - 16, y: ROOM_H / 2 - 16 });
+      const newDoor = randomDoorPosition();
+      setDoorPos(newDoor);
+      doorPosRef.current = newDoor;
     } else if (gameState === "room2") {
       setPos({ x: 40, y: ROOM_H / 2 - 16 });
     }
@@ -106,7 +130,7 @@ const ValentineGame: React.FC = () => {
               }
             }
             // Door transition
-            if (rectsOverlap(nx, ny, TILE, TILE, DOOR.x, DOOR.y, 28, 44)) {
+            if (rectsOverlap(nx, ny, TILE, TILE, doorPosRef.current.x, doorPosRef.current.y, DOOR_W, DOOR_H)) {
               setGameState("room2");
               return prev;
             }
@@ -260,7 +284,7 @@ const ValentineGame: React.FC = () => {
         {gameState === "room1" && (
           <>
             {/* Floor pattern */}
-            <div className="absolute inset-0" style={{ background: "repeating-conic-gradient(#f0f0f0 0% 25%, #e8e8e8 0% 50%) 0 0 / 32px 32px" }} />
+            <div className="absolute inset-0" style={{ background: "repeating-conic-gradient(#FFF9DB 0% 25%, #FFF3B0 0% 50%) 0 0 / 32px 32px" }} />
             {/* Walls */}
             <div className="absolute top-0 left-0 right-0" style={{ height: 6, background: "#FF69B4" }} />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: 4, background: "#999" }} />
@@ -275,7 +299,7 @@ const ValentineGame: React.FC = () => {
             ))}
 
             {/* Door */}
-            <div className="absolute" style={{ left: DOOR.x, top: DOOR.y }}>
+            <div className="absolute" style={{ left: doorPos.x, top: doorPos.y }}>
               <Door />
             </div>
 
