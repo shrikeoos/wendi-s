@@ -153,8 +153,6 @@ export const Door: React.FC = () => (
   <div className="relative" style={{ width: 28, height: 44, imageRendering: "pixelated" }}>
     <div className="absolute inset-0" style={{ background: "#654321", border: "2px solid #4A2F15", borderRadius: "8px 8px 0 0" }} />
     <div className="absolute" style={{ top: 20, right: 4, width: 4, height: 4, background: "#FFD700", borderRadius: "50%" }} />
-    {/* Arrow hint */}
-    <div className="absolute -right-3 top-1/2 -translate-y-1/2 text-xs animate-pulse" style={{ color: "#FFD700", fontSize: 10, fontFamily: "monospace" }}>▶</div>
   </div>
 );
 

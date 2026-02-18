@@ -34,6 +34,9 @@ const DOOR_PAD = 40; // padding from room edges
 // NPC position in room 2
 const NPC = { x: ROOM_W / 2 - 16, y: ROOM_H / 2 - 16 };
 
+// Door on the left wall of room 2 (leads back to room 1)
+const ROOM2_DOOR = { x: 4, y: ROOM_H / 2 - 22 };
+
 const INTERACT_DIST = 50;
 
 function rectsOverlap(
@@ -72,6 +75,19 @@ const ValentineGame: React.FC = () => {
   const keysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
   const fwIntervalRef = useRef<number>(0);
+  const [scale, setScale] = useState(1);
+
+  // Compute scale to fill window
+  useEffect(() => {
+    const updateScale = () => {
+      const sx = window.innerWidth / ROOM_W;
+      const sy = window.innerHeight / ROOM_H;
+      setScale(Math.min(sx, sy));
+    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
 
   // Reset position when changing rooms
   useEffect(() => {
@@ -81,7 +97,7 @@ const ValentineGame: React.FC = () => {
       setDoorPos(newDoor);
       doorPosRef.current = newDoor;
     } else if (gameState === "room2") {
-      setPos({ x: 40, y: ROOM_H / 2 - 16 });
+      setPos({ x: 80, y: ROOM_H / 2 - 16 });
     }
   }, [gameState]);
 
@@ -141,6 +157,11 @@ const ValentineGame: React.FC = () => {
             if (rectsOverlap(nx, ny, TILE, TILE, NPC.x, NPC.y, TILE, TILE)) {
               nx = prev.x;
               ny = prev.y;
+            }
+            // Back-door to room 1
+            if (rectsOverlap(nx, ny, TILE, TILE, ROOM2_DOOR.x, ROOM2_DOOR.y, DOOR_W, DOOR_H)) {
+              setGameState("room1");
+              return prev;
             }
           }
 
@@ -230,8 +251,14 @@ const ValentineGame: React.FC = () => {
     setMonkeys([]);
   };
 
+  const handleRestart = () => {
+    setGameState("room1");
+    setFireworks([]);
+    setMonkeys([]);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen" style={{ background: "#1a1a2e", fontFamily: "'Press Start 2P', monospace" }}>
+    <div className="flex items-center justify-center" style={{ background: "#1a1a2e", fontFamily: "'Press Start 2P', monospace", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         @keyframes rainDrop {
@@ -273,10 +300,9 @@ const ValentineGame: React.FC = () => {
         style={{
           width: ROOM_W,
           height: ROOM_H,
-          border: "4px solid #333",
-          borderRadius: 4,
           background: gameState === "room1" ? "#FFF5F8" : gameState === "room2" ? "#FFF0F5" : "#FFF0F5",
-          boxShadow: "0 0 20px rgba(255,105,180,0.3)",
+          transform: `scale(${scale})`,
+          transformOrigin: "center center",
         }}
         tabIndex={0}
       >
@@ -330,6 +356,11 @@ const ValentineGame: React.FC = () => {
             {[60, 160, 280, 380].map((x, i) => (
               <div key={i} className="absolute" style={{ left: x, top: 10, fontSize: 16, opacity: 0.3 }}>💕</div>
             ))}
+
+            {/* Back door (to room 1) */}
+            <div className="absolute" style={{ left: ROOM2_DOOR.x, top: ROOM2_DOOR.y }}>
+              <Door />
+            </div>
 
             {/* NPC */}
             <div className="absolute" style={{ left: NPC.x, top: NPC.y, zIndex: 5 }}>
@@ -451,6 +482,21 @@ const ValentineGame: React.FC = () => {
                 🎉 Happy Valentine's Day! 🎉
               </div>
               <div className="mt-4" style={{ fontSize: 28 }}>💕🐵💖🐵💕</div>
+              <button
+                onClick={handleRestart}
+                className="mt-6 px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
+                style={{
+                  background: "rgba(255,255,255,0.25)",
+                  color: "white",
+                  border: "2px solid rgba(255,255,255,0.5)",
+                  borderRadius: 6,
+                  fontSize: 8,
+                  fontFamily: "'Press Start 2P', monospace",
+                  backdropFilter: "blur(4px)",
+                }}
+              >
+                🔄 Play Again
+              </button>
             </div>
           </>
         )}
