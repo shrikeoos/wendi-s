@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { FemaleSprite, MaleSprite, Wardrobe, Door, Firework, MonkeySprite, RainCloud } from "./PixelSprites";
+import { FemaleSprite, MaleSprite, Wardrobe, Door, Firework, MonkeySprite, RainCloud, FlowerSprite, PeekingMonkeyFace, CatSprite } from "./PixelSprites";
 
 type GameState = "room1" | "room2" | "dialogue" | "yes-ending" | "no-ending";
 type Direction = "down" | "up" | "left" | "right";
@@ -7,7 +7,7 @@ type Direction = "down" | "up" | "left" | "right";
 const TILE = 32;
 const ROOM_W = 1024;
 const ROOM_H = 768;
-const SPEED = 4;
+const SPEED = 1;
 
 // Wardrobe positions in room 1
 const WARDROBES = [
@@ -24,6 +24,24 @@ const WARDROBES = [
   { x: 300, y: 560, variant: 4 },
   { x: 550, y: 520, variant: 5 },
   { x: 780, y: 580, variant: 3 },
+];
+
+// Flower positions in room 1
+type FlowerType = 'tulip' | 'lily' | 'hydrangea';
+const FLOWERS: { x: number; y: number; type: FlowerType }[] = [
+  { x: 158, y: 52, type: 'tulip' },
+  { x: 340, y: 50, type: 'lily' },
+  { x: 592, y: 50, type: 'hydrangea' },
+  { x: 825, y: 52, type: 'tulip' },
+  { x: 18, y: 175, type: 'hydrangea' },
+  { x: 975, y: 190, type: 'lily' },
+  { x: 248, y: 200, type: 'tulip' },
+  { x: 495, y: 165, type: 'hydrangea' },
+  { x: 230, y: 455, type: 'lily' },
+  { x: 680, y: 455, type: 'tulip' },
+  { x: 185, y: 680, type: 'hydrangea' },
+  { x: 660, y: 680, type: 'lily' },
+  { x: 880, y: 680, type: 'tulip' },
 ];
 
 // Door dimensions for collision
@@ -76,6 +94,15 @@ const ValentineGame: React.FC = () => {
   const rafRef = useRef<number>(0);
   const fwIntervalRef = useRef<number>(0);
   const [scale, setScale] = useState(1);
+  const [peekingWardrobe, setPeekingWardrobe] = useState<number | null>(null);
+  const [dialoguePage, setDialoguePage] = useState<"question" | "no-response" | "hehe" | "bouquet">("question");
+  const [catPos, setCatPos] = useState({ x: 400, y: 350 });
+  const [catFacing, setCatFacing] = useState<"left" | "right">("right");
+  const [showCatSpeech, setShowCatSpeech] = useState(false);
+  const [showTransition, setShowTransition] = useState(false);
+  const peekTimerRef = useRef<number>(0);
+  const catDxRef = useRef(1.5);
+  const catDyRef = useRef(0);
 
   // Compute scale to fill window
   useEffect(() => {
@@ -96,8 +123,6 @@ const ValentineGame: React.FC = () => {
       const newDoor = randomDoorPosition();
       setDoorPos(newDoor);
       doorPosRef.current = newDoor;
-    } else if (gameState === "room2") {
-      setPos({ x: 80, y: ROOM_H / 2 - 16 });
     }
   }, [gameState]);
 
@@ -107,6 +132,7 @@ const ValentineGame: React.FC = () => {
       keysRef.current.add(e.key);
       if (e.key === " " && nearNpc && gameState === "room2") {
         e.preventDefault();
+        setDialoguePage("question");
         setGameState("dialogue");
       }
     };
@@ -148,7 +174,7 @@ const ValentineGame: React.FC = () => {
             // Door transition
             if (rectsOverlap(nx, ny, TILE, TILE, doorPosRef.current.x, doorPosRef.current.y, DOOR_W, DOOR_H)) {
               setGameState("room2");
-              return prev;
+              return { x: 80, y: ROOM_H / 2 - 16 };
             }
           }
 
@@ -241,20 +267,97 @@ const ValentineGame: React.FC = () => {
     return () => clearInterval(id);
   }, [gameState]);
 
+  // Monkey randomly peeks from behind a wardrobe in room 1
+  useEffect(() => {
+    if (gameState !== "room1") {
+      setPeekingWardrobe(null);
+      return;
+    }
+    let cancelled = false;
+    const schedule = () => {
+      if (cancelled) return;
+      const delay = 2500 + Math.random() * 2500;
+      peekTimerRef.current = window.setTimeout(() => {
+        if (cancelled) return;
+        setPeekingWardrobe(Math.floor(Math.random() * WARDROBES.length));
+        peekTimerRef.current = window.setTimeout(() => {
+          if (cancelled) return;
+          setPeekingWardrobe(null);
+          schedule();
+        }, 2000 + Math.random() * 1000);
+      }, delay);
+    };
+    schedule();
+    return () => {
+      cancelled = true;
+      clearTimeout(peekTimerRef.current);
+    };
+  }, [gameState]);
+
+  // Cat wanders around room 1
+  useEffect(() => {
+    if (gameState !== "room1") return;
+    const moveId = setInterval(() => {
+      setCatPos(prev => {
+        const nx = prev.x + catDxRef.current;
+        const ny = prev.y + catDyRef.current;
+        const cx = Math.max(30, Math.min(ROOM_W - 60, nx));
+        const cy = Math.max(30, Math.min(ROOM_H - 60, ny));
+        if (cx !== nx) {
+          catDxRef.current = -catDxRef.current;
+          setCatFacing(catDxRef.current > 0 ? "right" : "left");
+        }
+        if (cy !== ny) catDyRef.current = -catDyRef.current;
+        return { x: cx, y: cy };
+      });
+    }, 30);
+    const dirId = setInterval(() => {
+      const angle = Math.random() * Math.PI * 2;
+      catDxRef.current = Math.cos(angle) * 1.5;
+      catDyRef.current = Math.sin(angle) * 1.5;
+      setCatFacing(catDxRef.current >= 0 ? "right" : "left");
+    }, 2200);
+    return () => { clearInterval(moveId); clearInterval(dirId); };
+  }, [gameState]);
+
+  const handleCatClick = () => {
+    setShowCatSpeech(true);
+    setTimeout(() => setShowCatSpeech(false), 2500);
+  };
+
   const handleChoice = (choice: "yes" | "no") => {
-    setGameState(choice === "yes" ? "yes-ending" : "no-ending");
+    if (choice === "yes") {
+      setDialoguePage("hehe");
+      setTimeout(() => {
+        setDialoguePage("bouquet");
+        setTimeout(() => {
+          setShowTransition(true);
+          setTimeout(() => {
+            setGameState("yes-ending");
+            setShowTransition(false);
+            setDialoguePage("question");
+          }, 700);
+        }, 1800);
+      }, 1500);
+    } else {
+      setDialoguePage("no-response");
+    }
   };
 
   const handleRetry = () => {
     setGameState("room2");
     setFireworks([]);
     setMonkeys([]);
+    setShowTransition(false);
+    setDialoguePage("question");
   };
 
   const handleRestart = () => {
     setGameState("room1");
     setFireworks([]);
     setMonkeys([]);
+    setShowTransition(false);
+    setDialoguePage("question");
   };
 
   return (
@@ -291,6 +394,28 @@ const ValentineGame: React.FC = () => {
           50% { transform: rotate(35deg); }
           100% { transform: rotate(-35deg); }
         }
+        @keyframes flashyGradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes peekIn {
+          0% { opacity: 0; transform: translateX(10px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes flashIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        @keyframes bouquetPop {
+          0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+          60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes catWalk {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+        }
       `}</style>
 
 
@@ -309,17 +434,44 @@ const ValentineGame: React.FC = () => {
         {/* Room 1 */}
         {gameState === "room1" && (
           <>
-            {/* Floor pattern */}
-            <div className="absolute inset-0" style={{ background: "repeating-conic-gradient(#FFF9DB 0% 25%, #FFF3B0 0% 50%) 0 0 / 32px 32px" }} />
+            {/* Floor — white tiles with soft pink dot pattern */}
+            <div className="absolute inset-0" style={{
+              backgroundColor: "#FFFBFC",
+              backgroundImage: "radial-gradient(circle, #FFD6E8 1.5px, transparent 1.5px)",
+              backgroundSize: "24px 24px",
+            }} />
             {/* Walls */}
             <div className="absolute top-0 left-0 right-0" style={{ height: 6, background: "#FF69B4" }} />
             <div className="absolute bottom-0 left-0 right-0" style={{ height: 4, background: "#999" }} />
             <div className="absolute top-0 left-0 bottom-0" style={{ width: 4, background: "#999" }} />
             <div className="absolute top-0 right-0 bottom-0" style={{ width: 4, background: "#999" }} />
 
+            {/* Flowers */}
+            {FLOWERS.map((f, i) => (
+              <div key={`flower-${i}`} className="absolute" style={{ left: f.x, top: f.y, zIndex: 2 }}>
+                <FlowerSprite type={f.type} />
+              </div>
+            ))}
+
+            {/* Peeking monkey behind cabinet */}
+            {peekingWardrobe !== null && (() => {
+              const w = WARDROBES[peekingWardrobe];
+              const wardrobeW = w.variant % 3 === 1 ? 52 : 40;
+              return (
+                <div className="absolute" style={{
+                  left: w.x + wardrobeW - 6,
+                  top: w.y + 8,
+                  zIndex: 3,
+                  animation: "peekIn 0.3s ease-out",
+                }}>
+                  <PeekingMonkeyFace />
+                </div>
+              );
+            })()}
+
             {/* Wardrobes */}
             {WARDROBES.map((w, i) => (
-              <div key={i} className="absolute" style={{ left: w.x, top: w.y }}>
+              <div key={i} className="absolute" style={{ left: w.x, top: w.y, zIndex: 4 }}>
                 <Wardrobe variant={w.variant} />
               </div>
             ))}
@@ -332,6 +484,33 @@ const ValentineGame: React.FC = () => {
             {/* Player */}
             <div className="absolute transition-none" style={{ left: pos.x, top: pos.y, zIndex: 10 }}>
               <FemaleSprite direction={dir} />
+            </div>
+
+            {/* Cat — Poulet */}
+            <div
+              className="absolute"
+              style={{ left: catPos.x, top: catPos.y, zIndex: 7, cursor: "pointer", animation: "catWalk 0.4s ease-in-out infinite" }}
+              onClick={handleCatClick}
+            >
+              <CatSprite facing={catFacing} />
+              {showCatSpeech && (
+                <div className="absolute" style={{
+                  bottom: "110%", left: "50%", transform: "translateX(-50%)",
+                  background: "white", border: "2px solid #FF8C00",
+                  borderRadius: 8, padding: "4px 8px",
+                  fontSize: 7, fontFamily: "'Press Start 2P', monospace",
+                  color: "#333", whiteSpace: "nowrap", zIndex: 20,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                }}>
+                  My name is Poulet!
+                  <div style={{
+                    position: "absolute", bottom: -7, left: "50%", transform: "translateX(-50%)",
+                    width: 0, height: 0,
+                    borderLeft: "6px solid transparent", borderRight: "6px solid transparent",
+                    borderTop: "7px solid #FF8C00",
+                  }} />
+                </div>
+              )}
             </div>
 
             {/* Instructions */}
@@ -378,56 +557,90 @@ const ValentineGame: React.FC = () => {
               <FemaleSprite direction={dir} />
             </div>
 
+            {/* Bouquet — appears when NPC pulls it out */}
+            {dialoguePage === "bouquet" && (
+              <div className="absolute" style={{
+                left: NPC.x + 34, top: NPC.y - 8, zIndex: 6,
+                animation: "bouquetPop 0.5s cubic-bezier(0.36,0.07,0.19,0.97) forwards",
+              }}>
+                {/* Transparent blob with a single tulip inside */}
+                <div style={{ position: "relative", width: 48, height: 58 }}>
+                  <div style={{
+                    position: "absolute", inset: 0,
+                    background: "rgba(220, 245, 255, 0.22)",
+                    border: "2px solid rgba(180, 220, 255, 0.55)",
+                    borderRadius: "58% 42% 52% 48% / 48% 56% 44% 52%",
+                    boxShadow: "inset 0 0 14px rgba(255,255,255,0.45), 0 3px 10px rgba(160,210,255,0.25)",
+                  }} />
+                  <div style={{ position: "absolute", top: 10, left: 14 }}>
+                    <FlowerSprite type="tulip" />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Dialogue */}
             {gameState === "dialogue" && (
-              <div className="absolute left-1/2 -translate-x-1/2" style={{ top: NPC.y - 100, zIndex: 20 }}>
+              <div className="absolute left-1/2 -translate-x-1/2" style={{ top: NPC.y - 120, zIndex: 20 }}>
                 <div className="relative" style={{
                   background: "white",
                   border: "3px solid #FF69B4",
                   borderRadius: 12,
                   padding: "12px 16px",
-                  minWidth: 220,
+                  minWidth: 260,
                   textAlign: "center",
                   boxShadow: "0 4px 12px rgba(255,105,180,0.3)",
                 }}>
-                  <p style={{ fontSize: 10, fontFamily: "'Press Start 2P', monospace", color: "#333", lineHeight: 1.6, marginBottom: 12 }}>
-                    Hey Wendi! Will you<br />be my Valentine? ❤️
-                  </p>
-                  <div className="flex gap-2 justify-center">
-                    <button
-                      onClick={() => handleChoice("yes")}
-                      className="px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
-                      style={{
-                        background: "#FF69B4",
-                        color: "white",
-                        border: "2px solid #FF1493",
-                        borderRadius: 6,
-                        fontSize: 9,
-                        fontFamily: "'Press Start 2P', monospace",
-                      }}
-                    >
-                      Yes! 💖
-                    </button>
-                    <button
-                      onClick={() => handleChoice("no")}
-                      className="px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
-                      style={{
-                        background: "#999",
-                        color: "white",
-                        border: "2px solid #777",
-                        borderRadius: 6,
-                        fontSize: 9,
-                        fontFamily: "'Press Start 2P', monospace",
-                      }}
-                    >
-                      No 😅
-                    </button>
-                  </div>
+                  {dialoguePage === "question" && (
+                    <>
+                      <p style={{ fontSize: 9, fontFamily: "'Press Start 2P', monospace", color: "#333", lineHeight: 1.8, marginBottom: 12 }}>
+                        Hey Etoile, do you<br />know what's special<br />about today?
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => handleChoice("yes")}
+                          className="px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
+                          style={{ background: "#FF69B4", color: "white", border: "2px solid #FF1493", borderRadius: 6, fontSize: 9, fontFamily: "'Press Start 2P', monospace" }}
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={() => handleChoice("no")}
+                          className="px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
+                          style={{ background: "#999", color: "white", border: "2px solid #777", borderRadius: 6, fontSize: 9, fontFamily: "'Press Start 2P', monospace" }}
+                        >
+                          No
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {dialoguePage === "no-response" && (
+                    <>
+                      <p style={{ fontSize: 9, fontFamily: "'Press Start 2P', monospace", color: "#666", lineHeight: 1.8, marginBottom: 10 }}>
+                        Oh too bad. I guess<br />today is just like<br />any other day
+                      </p>
+                      <button
+                        onClick={() => { setGameState("room2"); setDialoguePage("question"); }}
+                        className="px-3 py-1 cursor-pointer hover:scale-110 transition-transform"
+                        style={{ background: "#eee", color: "#555", border: "2px solid #ccc", borderRadius: 6, fontSize: 9, fontFamily: "'Press Start 2P', monospace" }}
+                      >
+                        ✕ Close
+                      </button>
+                    </>
+                  )}
+                  {dialoguePage === "hehe" && (
+                    <p style={{ fontSize: 18, fontFamily: "'Press Start 2P', monospace", color: "#FF1493", lineHeight: 1.6, animation: "bounceText 0.5s ease-in-out infinite" }}>
+                      HEHE!!
+                    </p>
+                  )}
+                  {dialoguePage === "bouquet" && (
+                    <p style={{ fontSize: 9, fontFamily: "'Press Start 2P', monospace", color: "#333", lineHeight: 1.8 }}>
+                      For you! 🌸
+                    </p>
+                  )}
                   {/* Speech bubble tail */}
                   <div className="absolute left-1/2 -translate-x-1/2" style={{
-                    bottom: -10,
-                    width: 0,
-                    height: 0,
+                    bottom: -10, width: 0, height: 0,
                     borderLeft: "8px solid transparent",
                     borderRight: "8px solid transparent",
                     borderTop: "10px solid #FF69B4",
@@ -448,7 +661,11 @@ const ValentineGame: React.FC = () => {
         {/* Yes ending */}
         {gameState === "yes-ending" && (
           <>
-            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #FF69B4, #FFD700, #FF1493)" }} />
+            <div className="absolute inset-0" style={{
+              background: "linear-gradient(-45deg, #FF0000, #FF1493, #FF69B4, #FF0055)",
+              backgroundSize: "400% 400%",
+              animation: "flashyGradient 3s ease infinite",
+            }} />
 
             {/* Fireworks */}
             {fireworks.map(fw => (
@@ -474,14 +691,15 @@ const ValentineGame: React.FC = () => {
                 fontSize: 16,
                 fontFamily: "'Press Start 2P', monospace",
                 color: "white",
-                textShadow: "2px 2px 0 #FF1493, -2px -2px 0 #FF1493",
+                textShadow: "2px 2px 0 #CC0044, -2px -2px 0 #CC0044",
                 animation: "bounceText 1s ease-in-out infinite",
                 textAlign: "center",
                 lineHeight: 2,
               }}>
-                🎉 Happy Valentine's Day! 🎉
+                🎂 Happy birthday<br />princess! 🎂
+                <div style={{ fontSize: 12, marginTop: 8 }}>24 years old (:</div>
               </div>
-              <div className="mt-4" style={{ fontSize: 28 }}>💕🐵💖🐵💕</div>
+              <div className="mt-4" style={{ fontSize: 28 }}>🎉🐵🎂🐵🎉</div>
               <button
                 onClick={handleRestart}
                 className="mt-6 px-3 py-2 cursor-pointer hover:scale-110 transition-transform"
@@ -547,6 +765,15 @@ const ValentineGame: React.FC = () => {
               </button>
             </div>
           </>
+        )}
+
+        {/* Transition flash overlay */}
+        {showTransition && (
+          <div className="absolute inset-0" style={{
+            background: "linear-gradient(-45deg, #FF0000, #FF1493, #FF69B4)",
+            zIndex: 200,
+            animation: "flashIn 0.7s ease-in forwards",
+          }} />
         )}
       </div>
 
