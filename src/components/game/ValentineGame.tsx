@@ -94,7 +94,7 @@ const ValentineGame: React.FC = () => {
   const rafRef = useRef<number>(0);
   const fwIntervalRef = useRef<number>(0);
   const [scale, setScale] = useState(1);
-  const [peekingWardrobe, setPeekingWardrobe] = useState<number | null>(null);
+  const [peekConfig, setPeekConfig] = useState<{ idx: number; side: "left" | "right" | "top" } | null>(null);
   const [dialoguePage, setDialoguePage] = useState<"question" | "no-response" | "hehe" | "bouquet">("question");
   const [catPos, setCatPos] = useState({ x: 400, y: 350 });
   const [catFacing, setCatFacing] = useState<"left" | "right">("right");
@@ -267,32 +267,28 @@ const ValentineGame: React.FC = () => {
     return () => clearInterval(id);
   }, [gameState]);
 
-  // Monkey randomly peeks from behind a wardrobe in room 1
+  // Monkey peeks from behind the nearest cabinet when player gets close
   useEffect(() => {
-    if (gameState !== "room1") {
-      setPeekingWardrobe(null);
-      return;
-    }
-    let cancelled = false;
-    const schedule = () => {
-      if (cancelled) return;
-      const delay = 2500 + Math.random() * 2500;
-      peekTimerRef.current = window.setTimeout(() => {
-        if (cancelled) return;
-        setPeekingWardrobe(Math.floor(Math.random() * WARDROBES.length));
-        peekTimerRef.current = window.setTimeout(() => {
-          if (cancelled) return;
-          setPeekingWardrobe(null);
-          schedule();
-        }, 2000 + Math.random() * 1000);
-      }, delay);
-    };
-    schedule();
-    return () => {
-      cancelled = true;
-      clearTimeout(peekTimerRef.current);
-    };
-  }, [gameState]);
+    if (gameState !== "room1") { setPeekConfig(null); return; }
+    const PEEK_DIST = 100;
+    const px = pos.x + TILE / 2;
+    const py = pos.y + TILE / 2;
+    let closest: number | null = null;
+    let closestDist = Infinity;
+    WARDROBES.forEach((w, i) => {
+      const ww = w.variant % 3 === 1 ? 52 : 40;
+      const wh = w.variant % 3 === 2 ? 56 : 48;
+      const dist = Math.hypot(px - (w.x + ww / 2), py - (w.y + wh / 2));
+      if (dist < PEEK_DIST && dist < closestDist) { closestDist = dist; closest = i; }
+    });
+    if (closest === null) { setPeekConfig(null); return; }
+    const newIdx = closest;
+    setPeekConfig(prev => {
+      if (prev?.idx === newIdx) return prev;
+      const sides: Array<"left" | "right" | "top"> = ["left", "right", "top"];
+      return { idx: newIdx, side: sides[Math.floor(Math.random() * sides.length)] };
+    });
+  }, [pos, gameState]);
 
   // Cat wanders around room 1
   useEffect(() => {
@@ -403,6 +399,14 @@ const ValentineGame: React.FC = () => {
           0% { opacity: 0; transform: translateX(10px); }
           100% { opacity: 1; transform: translateX(0); }
         }
+        @keyframes peekInLeft {
+          0% { opacity: 0; transform: translateX(-10px); }
+          100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes peekInTop {
+          0% { opacity: 0; transform: translateY(-10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
         @keyframes flashIn {
           0% { opacity: 0; }
           100% { opacity: 1; }
@@ -454,17 +458,19 @@ const ValentineGame: React.FC = () => {
             ))}
 
             {/* Peeking monkey behind cabinet */}
-            {peekingWardrobe !== null && (() => {
-              const w = WARDROBES[peekingWardrobe];
+            {peekConfig !== null && (() => {
+              const w = WARDROBES[peekConfig.idx];
               const wardrobeW = w.variant % 3 === 1 ? 52 : 40;
+              const left = peekConfig.side === "right"
+                ? w.x + wardrobeW - 6
+                : peekConfig.side === "left"
+                ? w.x - 18
+                : w.x + Math.floor(wardrobeW / 2) - 12;
+              const top = peekConfig.side === "top" ? w.y - 18 : w.y + 8;
+              const anim = peekConfig.side === "right" ? "peekIn" : peekConfig.side === "left" ? "peekInLeft" : "peekInTop";
               return (
-                <div className="absolute" style={{
-                  left: w.x + wardrobeW - 6,
-                  top: w.y + 8,
-                  zIndex: 3,
-                  animation: "peekIn 0.3s ease-out",
-                }}>
-                  <PeekingMonkeyFace />
+                <div className="absolute" style={{ left, top, zIndex: 3, animation: `${anim} 0.3s ease-out` }}>
+                  <PeekingMonkeyFace flipped={peekConfig.side === "left"} />
                 </div>
               );
             })()}
@@ -617,7 +623,7 @@ const ValentineGame: React.FC = () => {
                   {dialoguePage === "no-response" && (
                     <>
                       <p style={{ fontSize: 9, fontFamily: "'Press Start 2P', monospace", color: "#666", lineHeight: 1.8, marginBottom: 10 }}>
-                        Oh too bad. I guess<br />today is just like<br />any other day
+                        Oh too bad. I guess<br />today is just like<br />any other day.
                       </p>
                       <button
                         onClick={() => { setGameState("room2"); setDialoguePage("question"); }}

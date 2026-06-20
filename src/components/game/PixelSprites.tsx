@@ -27,8 +27,8 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
       {/* Eyes */}
       {direction !== "up" && (
         <>
-          <div className="absolute" style={{ top: 10, left: direction === "left" ? 8 : 10, width: 3, height: 3, background: "#333" }} />
-          <div className="absolute" style={{ top: 10, left: direction === "left" ? 18 : 20, width: 3, height: 3, background: "#333" }} />
+          <div className="absolute" style={{ top: 10, left: direction === "left" ? 8 : direction === "right" ? 12 : 10, width: 3, height: 3, background: "#333" }} />
+          <div className="absolute" style={{ top: 10, left: direction === "left" ? 18 : direction === "right" ? 22 : 20, width: 3, height: 3, background: "#333" }} />
         </>
       )}
       {/* Mouth */}
@@ -342,8 +342,8 @@ export const FlowerSprite: React.FC<{ type: 'tulip' | 'lily' | 'hydrangea' }> = 
 };
 
 // Peeking baby orangutan face (for behind-cabinet effect)
-export const PeekingMonkeyFace: React.FC = () => (
-  <div style={{ width: 24, height: 22, imageRendering: "pixelated", position: "relative" }}>
+export const PeekingMonkeyFace: React.FC<{ flipped?: boolean }> = ({ flipped }) => (
+  <div style={{ width: 24, height: 22, imageRendering: "pixelated", position: "relative", transform: flipped ? "scaleX(-1)" : undefined }}>
     {/* Fluffy cheek puff on visible side */}
     <div className="absolute" style={{ top: 4, left: -3, width: 9, height: 9, background: "#C86420", borderRadius: "50%" }} />
     {/* Head */}
