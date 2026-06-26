@@ -97,7 +97,9 @@ This keeps room/dialogue files declarative and serializable.
    → Close (`closeDialogue`, does NOT reset player position)
 
 ### Birthday ending (`scenes/YesEnding.tsx`)
-- Animated red/pink gradient, fireworks, bouncing + swinging baby orangutans with varied expressions
+- Animated red/pink gradient; bouncing + swinging baby orangutans with varied expressions
+- Fireworks burst outward (one-shot `fireworkFly`), with 5 random patterns (`Firework` `variant` 0–4)
+  and a flashy high-contrast palette chosen to pop against the pink background
 - Message: "Happy birthday princess! 24 years old (:"
 
 ## Key constants (`engine/constants.ts`)
@@ -116,10 +118,10 @@ This keeps room/dialogue files declarative and serializable.
 | Export | Description |
 |---|---|
 | `FemaleSprite` | Player character, 4-directional (black hair, red dress) |
-| `MaleSprite` | NPC; `collapsed` and `shrug` variants |
+| `MaleSprite` | NPC; `collapsed` / `shrug` variants; `look` shifts pupils toward the player |
 | `Wardrobe` | 6 variants (wide/tall/normal, different wood tones) |
 | `Door` | Brown rounded door, 28×44px |
-| `Firework` | Particle burst |
+| `Firework` | Outward burst; `variant` 0–4 selects the pattern; `x`/`y`/`color` |
 | `MonkeySprite` | Baby orangutan; `swinging` prop (vine mode); `expr` 0–4 facial expressions |
 | `PeekingMonkeyFace` | Partial orangutan head for the cabinet peek |
 | `CatSprite` | Front-facing sitting tabby; `facing` prop flips via scaleX |
@@ -131,7 +133,10 @@ This keeps room/dialogue files declarative and serializable.
 
 `rainDrop`, `bounceText`, `floatExclaim`, `npcCollapse`, `nyaShake`, `monkeySwing`, `spiderSwing`,
 `flashyGradient`, `peekIn`/`peekInLeft`/`peekInTop` + `peekOut`/`peekOutLeft`/`peekOutTop`,
-`flashIn`, `bouquetPop`, `catWalk`, `shrug`
+`flashIn`, `bouquetPop`, `catWalk`, `shrug`, `fireworkFly`, `fireworkFlash`, `hintPulse`
+
+`fireworkFly` uses per-particle `--dx`/`--dy` CSS custom properties to launch each particle
+outward to its target offset.
 
 ## Notes / gotchas
 
@@ -141,3 +146,8 @@ This keeps room/dialogue files declarative and serializable.
 - Player position is preserved on dialogue close; reset only on room transition (and the room1
   door is re-randomized on each room1 entry)
 - The peek system measures distance/offset from an entity's `footprint`, not its collision `w/h`
+- The NPC's pupils glance toward the player in a single cardinal direction (`look` prop, computed
+  from `ctx.playerPos`), with a small deadzone when the player is very close
+- The gift blob is shown in whichever of several slots around the NPC is farthest from the player
+  (`pickBouquetSlot`), so the player sprite (higher z-index) can't hide it
+- Bottom hints / interaction prompts render as a pulsing pill (`hintPulse`) for visibility

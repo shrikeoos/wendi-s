@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FemaleSprite, CatSprite, FlowerSprite } from "./PixelSprites";
-import { ROOMS, NPC_POS, NPC_BOUQUET_POS } from "./data/rooms";
+import { ROOMS, NPC_POS } from "./data/rooms";
 import { DIALOGUE, NPC_DIALOGUE_START } from "./data/dialogue";
 import RoomView from "./engine/RoomView";
 import DialogueBox from "./engine/DialogueBox";
@@ -11,6 +11,27 @@ import YesEnding from "./scenes/YesEnding";
 import NoEnding from "./scenes/NoEnding";
 import { ActionId, DialogueChoice, Exit, RoomId, Screen, Direction, Vec } from "./engine/types";
 import { TILE, ROOM_W, ROOM_H, SPEED, INTERACT_DIST } from "./engine/constants";
+
+// Candidate spots for the gift blob (48×58) around the NPC. We show it in
+// whichever one is farthest from the player so the player can't hide it.
+const BOUQUET_SLOTS: Vec[] = [
+  { x: NPC_POS.x + 34, y: NPC_POS.y - 8 },  // right
+  { x: NPC_POS.x - 50, y: NPC_POS.y - 8 },  // left
+  { x: NPC_POS.x - 8, y: NPC_POS.y + 38 },  // below
+  { x: NPC_POS.x - 8, y: NPC_POS.y - 64 },  // above
+];
+
+function pickBouquetSlot(p: Vec): Vec {
+  const pcx = p.x + TILE / 2;
+  const pcy = p.y + TILE / 2;
+  let best = BOUQUET_SLOTS[0];
+  let bestDist = -1;
+  for (const s of BOUQUET_SLOTS) {
+    const d = Math.hypot(s.x + 24 - pcx, s.y + 29 - pcy);
+    if (d > bestDist) { bestDist = d; best = s; }
+  }
+  return best;
+}
 
 const ValentineGame: React.FC = () => {
   const [screen, setScreen] = useState<Screen>("play");
@@ -229,8 +250,9 @@ const ValentineGame: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
-  const ctx = { dialogueNode, nearInteractId, dir };
+  const ctx = { dialogueNode, nearInteractId, dir, playerPos: pos };
   const viewportBg = screen === "play" ? room.viewportBg : "#FFF0F5";
+  const bouquetPos = showBouquet ? pickBouquetSlot(pos) : null;
 
   return (
     <div className="flex items-center justify-center" style={{ background: "#1a1a2e", fontFamily: "'Press Start 2P', monospace", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -244,6 +266,8 @@ const ValentineGame: React.FC = () => {
         @keyframes monkeySwing { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } }
         @keyframes spiderSwing { 0% { transform: rotate(-35deg); } 50% { transform: rotate(35deg); } 100% { transform: rotate(-35deg); } }
         @keyframes flashyGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fireworkFly { 0% { transform: translate(0,0) scale(1.2); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; } }
+        @keyframes fireworkFlash { 0% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(2.6); opacity: 0; } }
         @keyframes peekIn { 0% { transform: translateX(-18px); } 100% { transform: translateX(0); } }
         @keyframes peekInLeft { 0% { transform: translateX(18px); } 100% { transform: translateX(0); } }
         @keyframes peekInTop { 0% { transform: translateY(24px); } 100% { transform: translateY(0); } }
@@ -254,6 +278,7 @@ const ValentineGame: React.FC = () => {
         @keyframes bouquetPop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 60% { transform: scale(1.2) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
         @keyframes catWalk { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
         @keyframes shrug { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+        @keyframes hintPulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } }
       `}</style>
 
       {/* Game viewport */}
@@ -309,10 +334,10 @@ const ValentineGame: React.FC = () => {
               </div>
             )}
 
-            {/* Bouquet — appears when NPC pulls it out */}
-            {showBouquet && (
+            {/* Bouquet — appears when NPC pulls it out, in open space away from the player */}
+            {showBouquet && bouquetPos && (
               <div className="absolute" style={{
-                left: NPC_BOUQUET_POS.x, top: NPC_BOUQUET_POS.y, zIndex: 6,
+                left: bouquetPos.x, top: bouquetPos.y, zIndex: 6,
                 animation: "bouquetPop 0.5s cubic-bezier(0.36,0.07,0.19,0.97) forwards",
               }}>
                 <div style={{ position: "relative", width: 48, height: 58 }}>

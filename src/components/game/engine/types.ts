@@ -12,6 +12,7 @@ export interface RenderCtx {
   dialogueNode: string | null;
   nearInteractId: string | null;
   dir: Direction;
+  playerPos: Vec;
 }
 
 // Action IDs are carried by data (entities, dialogue choices) and resolved to

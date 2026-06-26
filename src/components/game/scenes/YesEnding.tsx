@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Firework, MonkeySprite } from "../PixelSprites";
 import { ROOM_W, ROOM_H } from "../engine/constants";
 
-interface Fw { id: number; x: number; y: number; color: string }
+interface Fw { id: number; x: number; y: number; color: string; variant: number }
 interface Monkey { id: number; x: number; y: number; vy: number; swinging: boolean }
 
 const YesEnding: React.FC<{ onRestart: () => void }> = ({ onRestart }) => {
@@ -11,18 +11,35 @@ const YesEnding: React.FC<{ onRestart: () => void }> = ({ onRestart }) => {
 
   // Spawn fireworks + monkeys
   useEffect(() => {
-    const colors = ["#FF1493", "#FFD700", "#FF4500", "#00FF7F", "#1E90FF", "#FF69B4", "#FFA500", "#FF00FF", "#00FFFF"];
+    // Flashy, high-contrast colors that pop against the red/pink ending bg
+    // (pinks/magentas omitted — they blend into the background).
+    const colors = [
+      "#00FFFF", // cyan
+      "#39FF14", // neon green
+      "#FFFF00", // yellow
+      "#FFFFFF", // white
+      "#00E5FF", // bright sky
+      "#7CFC00", // lawn green
+      "#1E90FF", // dodger blue
+      "#BF00FF", // electric purple
+      "#FFD700", // gold
+      "#00FF7F", // spring green
+      "#CCFF00", // chartreuse
+      "#FFA500", // orange
+    ];
     const fwId = window.setInterval(() => {
       setFireworks(prev => [
-        ...prev.slice(-50),
-        ...Array.from({ length: 10 }, (_, i) => ({
+        // Retain enough that the longer bursts finish before being culled
+        ...prev.slice(-80),
+        ...Array.from({ length: 6 }, (_, i) => ({
           id: Date.now() + i,
-          x: Math.random() * ROOM_W,
-          y: Math.random() * ROOM_H,
+          x: 40 + Math.random() * (ROOM_W - 80),
+          y: 40 + Math.random() * (ROOM_H - 160),
           color: colors[Math.floor(Math.random() * colors.length)],
+          variant: Math.floor(Math.random() * 5),
         })),
       ]);
-    }, 200);
+    }, 220);
 
     const bouncers: Monkey[] = Array.from({ length: 6 }, (_, i) => ({
       id: i,
@@ -72,7 +89,7 @@ const YesEnding: React.FC<{ onRestart: () => void }> = ({ onRestart }) => {
 
       {/* Fireworks */}
       {fireworks.map(fw => (
-        <Firework key={fw.id} x={fw.x} y={fw.y} color={fw.color} />
+        <Firework key={fw.id} x={fw.x} y={fw.y} color={fw.color} variant={fw.variant} />
       ))}
 
       {/* Monkeys */}

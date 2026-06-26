@@ -113,7 +113,19 @@ const npc: Entity = {
   h: TILE,
   solid: true,
   zIndex: 5,
-  sprite: (ctx: RenderCtx) => <MaleSprite shrug={ctx.dialogueNode === "no-response"} />,
+  sprite: (ctx: RenderCtx) => {
+    // Glance toward the player along whichever axis dominates — one of
+    // left / right / up / down only (with a small deadzone when very close).
+    const dx = ctx.playerPos.x - NPC_POS.x;
+    const dy = ctx.playerPos.y - NPC_POS.y;
+    const AMT = 2;
+    let look = { x: 0, y: 0 };
+    if (Math.hypot(dx, dy) > 8) {
+      if (Math.abs(dx) >= Math.abs(dy)) look = { x: dx > 0 ? AMT : -AMT, y: 0 };
+      else look = { x: 0, y: dy > 0 ? AMT : -AMT };
+    }
+    return <MaleSprite shrug={ctx.dialogueNode === "no-response"} look={look} />;
+  },
   interact: { type: "space", prompt: "Press SPACE to talk!", action: "talk" },
 };
 
@@ -158,6 +170,3 @@ const room2: Room = {
 };
 
 export const ROOMS: Record<RoomId, Room> = { room1, room2 };
-
-// Where the bouquet blob appears (relative to the NPC) during the yes cutscene.
-export const NPC_BOUQUET_POS = { x: NPC_POS.x + 34, y: NPC_POS.y - 8 };

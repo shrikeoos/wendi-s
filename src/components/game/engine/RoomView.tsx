@@ -58,8 +58,22 @@ const RoomView: React.FC<RoomViewProps> = ({ room, exits, ctx, nearInteractId, o
       {/* Always-on room hint */}
       {room.hint && (
         <div
-          className="absolute bottom-2 left-1/2 -translate-x-1/2"
-          style={{ color: "#666", fontSize: 8, fontFamily: "'Press Start 2P', monospace" }}
+          className="absolute"
+          style={{
+            bottom: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(58,18,38,0.8)",
+            color: "#fff",
+            fontSize: 9,
+            fontFamily: "'Press Start 2P', monospace",
+            padding: "7px 16px",
+            borderRadius: 999,
+            border: "2px solid #FF8FC7",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
+            whiteSpace: "nowrap",
+            animation: "hintPulse 1.8s ease-in-out infinite",
+          }}
         >
           {room.hint}
         </div>
@@ -68,8 +82,22 @@ const RoomView: React.FC<RoomViewProps> = ({ room, exits, ctx, nearInteractId, o
       {/* Proximity prompt for the nearby interactable */}
       {nearEntity?.interact?.prompt && (
         <div
-          className="absolute bottom-2 left-1/2 -translate-x-1/2"
-          style={{ color: "#FF69B4", fontSize: 8, fontFamily: "'Press Start 2P', monospace" }}
+          className="absolute"
+          style={{
+            bottom: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(255,105,180,0.95)",
+            color: "#fff",
+            fontSize: 9,
+            fontFamily: "'Press Start 2P', monospace",
+            padding: "7px 16px",
+            borderRadius: 999,
+            border: "2px solid #fff",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
+            whiteSpace: "nowrap",
+            animation: "hintPulse 1.2s ease-in-out infinite",
+          }}
         >
           {nearEntity.interact.prompt}
         </div>

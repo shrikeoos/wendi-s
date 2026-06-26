@@ -46,8 +46,9 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
   );
 };
 
-// Male NPC sprite
-export const MaleSprite: React.FC<{ collapsed?: boolean; shrug?: boolean }> = ({ collapsed, shrug }) => {
+// Male NPC sprite. `look` shifts the pupils (range ~[-1,1]) so the NPC can
+// track the player around the room.
+export const MaleSprite: React.FC<{ collapsed?: boolean; shrug?: boolean; look?: { x: number; y: number } }> = ({ collapsed, shrug, look }) => {
   if (shrug) {
     // "I dunno" shrug — raised shoulders, bent arms, palms up
     return (
@@ -105,9 +106,9 @@ export const MaleSprite: React.FC<{ collapsed?: boolean; shrug?: boolean }> = ({
       <div className="absolute" style={{ top: 0, left: 6, width: 20, height: 8, background: "#2F1B14", borderRadius: "6px 6px 0 0" }} />
       {/* Face */}
       <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#FDBCB4" }} />
-      {/* Eyes */}
-      <div className="absolute" style={{ top: 10, left: 10, width: 3, height: 3, background: "#333" }} />
-      <div className="absolute" style={{ top: 10, left: 20, width: 3, height: 3, background: "#333" }} />
+      {/* Eyes — solid black, glance toward the player (one cardinal direction) */}
+      <div className="absolute" style={{ top: 10 + Math.max(-2, Math.min(2, look?.y ?? 0)), left: 10 + Math.max(-2, Math.min(2, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
+      <div className="absolute" style={{ top: 10 + Math.max(-2, Math.min(2, look?.y ?? 0)), left: 20 + Math.max(-2, Math.min(2, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
       {/* Smile */}
       <div className="absolute" style={{ top: 14, left: 13, width: 6, height: 2, background: "#C0392B", borderRadius: 2 }} />
       {/* Body / Shirt */}
@@ -229,21 +230,64 @@ export const Door: React.FC = () => (
 );
 
 // Firework burst with multiple particles
-export const Firework: React.FC<{ x: number; y: number; color: string }> = ({ x, y, color }) => {
-  const particles = [
-    { dx: 0, dy: -14 }, { dx: 10, dy: -10 }, { dx: 14, dy: 0 }, { dx: 10, dy: 10 },
-    { dx: 0, dy: 14 }, { dx: -10, dy: 10 }, { dx: -14, dy: 0 }, { dx: -10, dy: -10 },
-    { dx: 7, dy: -16 }, { dx: -7, dy: -16 }, { dx: 16, dy: 7 }, { dx: -16, dy: 7 },
-  ];
+// A ring of n particles at radius r
+const fwRing = (n: number, r: number, rot = 0) =>
+  Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + rot;
+    return { dx: Math.cos(a) * r, dy: Math.sin(a) * r };
+  });
+
+// `variant` 0-4 selects a burst pattern. Particles launch outward from the
+// center once (fireworkFly keyframe, fill: forwards) so each shell blooms and
+// fades like a real firework instead of pulsing in place.
+export const Firework: React.FC<{ x: number; y: number; color: string; variant?: number }> = ({ x, y, color, variant = 0 }) => {
+  const v = ((variant % 5) + 5) % 5;
+
+  let particles: { dx: number; dy: number }[];
+  let size = 5;
+  let dur = 1.1;
+  switch (v) {
+    case 1: // double ring
+      particles = [...fwRing(8, 11), ...fwRing(8, 22, Math.PI / 8)];
+      size = 4; dur = 1.25; break;
+    case 2: // random spray
+      particles = Array.from({ length: 14 }, () => {
+        const a = Math.random() * Math.PI * 2;
+        const r = 8 + Math.random() * 16;
+        return { dx: Math.cos(a) * r, dy: Math.sin(a) * r };
+      });
+      size = 4; dur = 1.0; break;
+    case 3: // big sparse star
+      particles = fwRing(6, 26);
+      size = 7; dur = 1.35; break;
+    case 4: // dense ring
+      particles = fwRing(16, 19);
+      size = 4; dur = 1.15; break;
+    default: // classic ring
+      particles = fwRing(10, 16);
+      size = 5; dur = 1.1;
+  }
+
   return (
     <div className="absolute" style={{ left: x, top: y }}>
-      <div className="animate-ping" style={{ position: "absolute", left: -5, top: -5, width: 10, height: 10, background: "white", borderRadius: "50%", opacity: 0.8 }} />
-      {particles.map((p, i) => (
-        <div key={i} className="animate-ping" style={{ position: "absolute", left: p.dx - 3, top: p.dy - 3, width: 6, height: 6, background: color, borderRadius: "50%", animationDelay: `${i * 0.04}s` }} />
-      ))}
-      {particles.slice(0, 8).map((p, i) => (
-        <div key={`t${i}`} style={{ position: "absolute", left: p.dx * 0.5 - 1, top: p.dy * 0.5 - 1, width: 3, height: 3, background: color, borderRadius: "50%", opacity: 0.5 }} />
-      ))}
+      {/* Bright center flash */}
+      <div style={{ position: "absolute", left: -6, top: -6, width: 12, height: 12, background: "#fff", borderRadius: "50%", boxShadow: `0 0 10px ${color}`, animation: "fireworkFlash 0.45s ease-out forwards" }} />
+      {particles.map((p, i) => {
+        const pStyle = {
+          position: "absolute",
+          left: -size / 2,
+          top: -size / 2,
+          width: size,
+          height: size,
+          background: color,
+          borderRadius: "50%",
+          boxShadow: `0 0 ${Math.round(size * 1.6)}px ${color}`,
+          "--dx": `${p.dx.toFixed(1)}px`,
+          "--dy": `${p.dy.toFixed(1)}px`,
+          animation: `fireworkFly ${dur}s ease-out forwards`,
+        } as React.CSSProperties;
+        return <div key={i} style={pStyle} />;
+      })}
     </div>
   );
 };
