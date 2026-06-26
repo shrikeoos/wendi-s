@@ -95,6 +95,8 @@ const ValentineGame: React.FC = () => {
   const fwIntervalRef = useRef<number>(0);
   const [scale, setScale] = useState(1);
   const [peekConfig, setPeekConfig] = useState<{ idx: number; side: "left" | "right" | "top" } | null>(null);
+  // What's actually rendered — stays mounted through the retract animation
+  const [peekView, setPeekView] = useState<{ idx: number; side: "left" | "right" | "top"; phase: "in" | "out" } | null>(null);
   const [dialoguePage, setDialoguePage] = useState<"question" | "no-response" | "hehe" | "bouquet">("question");
   const [catPos, setCatPos] = useState({ x: 400, y: 350 });
   const [catFacing, setCatFacing] = useState<"left" | "right">("right");
@@ -290,6 +292,20 @@ const ValentineGame: React.FC = () => {
     });
   }, [pos, gameState]);
 
+  // Drive the peek's enter/exit animation from peekConfig
+  useEffect(() => {
+    if (peekConfig) {
+      // (re)appear — cancel any pending unmount and slide out from behind
+      clearTimeout(peekTimerRef.current);
+      setPeekView({ idx: peekConfig.idx, side: peekConfig.side, phase: "in" });
+    } else {
+      // retract behind the wardrobe, then unmount once the slide finishes
+      setPeekView(prev => (prev && prev.phase !== "out" ? { ...prev, phase: "out" } : prev));
+      clearTimeout(peekTimerRef.current);
+      peekTimerRef.current = window.setTimeout(() => setPeekView(null), 300);
+    }
+  }, [peekConfig]);
+
   // Cat wanders around room 1
   useEffect(() => {
     if (gameState !== "room1") return;
@@ -395,17 +411,32 @@ const ValentineGame: React.FC = () => {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        /* Start fully tucked behind the wardrobe (hidden by its higher z-index),
+           then slide out so the monkey emerges from behind it. */
         @keyframes peekIn {
-          0% { opacity: 0; transform: translateX(10px); }
-          100% { opacity: 1; transform: translateX(0); }
+          0% { transform: translateX(-18px); }
+          100% { transform: translateX(0); }
         }
         @keyframes peekInLeft {
-          0% { opacity: 0; transform: translateX(-10px); }
-          100% { opacity: 1; transform: translateX(0); }
+          0% { transform: translateX(18px); }
+          100% { transform: translateX(0); }
         }
         @keyframes peekInTop {
-          0% { opacity: 0; transform: translateY(-10px); }
-          100% { opacity: 1; transform: translateY(0); }
+          0% { transform: translateY(24px); }
+          100% { transform: translateY(0); }
+        }
+        /* Retract back behind the wardrobe when the player walks away. */
+        @keyframes peekOut {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-18px); }
+        }
+        @keyframes peekOutLeft {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(18px); }
+        }
+        @keyframes peekOutTop {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(24px); }
         }
         @keyframes flashIn {
           0% { opacity: 0; }
@@ -419,6 +450,11 @@ const ValentineGame: React.FC = () => {
         @keyframes catWalk {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-2px); }
+        }
+        /* Subtle 'I dunno' shrug bob */
+        @keyframes shrug {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-1.5px); }
         }
       `}</style>
 
@@ -458,19 +494,21 @@ const ValentineGame: React.FC = () => {
             ))}
 
             {/* Peeking monkey behind cabinet */}
-            {peekConfig !== null && (() => {
-              const w = WARDROBES[peekConfig.idx];
+            {peekView !== null && (() => {
+              const w = WARDROBES[peekView.idx];
               const wardrobeW = w.variant % 3 === 1 ? 52 : 40;
-              const left = peekConfig.side === "right"
+              const left = peekView.side === "right"
                 ? w.x + wardrobeW - 6
-                : peekConfig.side === "left"
+                : peekView.side === "left"
                 ? w.x - 18
                 : w.x + Math.floor(wardrobeW / 2) - 12;
-              const top = peekConfig.side === "top" ? w.y - 18 : w.y + 8;
-              const anim = peekConfig.side === "right" ? "peekIn" : peekConfig.side === "left" ? "peekInLeft" : "peekInTop";
+              const top = peekView.side === "top" ? w.y - 18 : w.y + 8;
+              const inAnim = peekView.side === "right" ? "peekIn" : peekView.side === "left" ? "peekInLeft" : "peekInTop";
+              const outAnim = peekView.side === "right" ? "peekOut" : peekView.side === "left" ? "peekOutLeft" : "peekOutTop";
+              const anim = peekView.phase === "out" ? `${outAnim} 0.3s ease-in forwards` : `${inAnim} 0.3s ease-out`;
               return (
-                <div className="absolute" style={{ left, top, zIndex: 3, animation: `${anim} 0.3s ease-out` }}>
-                  <PeekingMonkeyFace flipped={peekConfig.side === "left"} />
+                <div className="absolute" style={{ left, top, zIndex: 3, animation: anim }}>
+                  <PeekingMonkeyFace flipped={peekView.side === "left"} />
                 </div>
               );
             })()}
@@ -549,7 +587,7 @@ const ValentineGame: React.FC = () => {
 
             {/* NPC */}
             <div className="absolute" style={{ left: NPC.x, top: NPC.y, zIndex: 5 }}>
-              <MaleSprite />
+              <MaleSprite shrug={dialoguePage === "no-response"} />
               {/* Interaction indicator */}
               {nearNpc && gameState === "room2" && (
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2" style={{ animation: "floatExclaim 1s ease-in-out infinite", color: "#FFD700", fontSize: 16, fontWeight: "bold" }}>
@@ -623,7 +661,7 @@ const ValentineGame: React.FC = () => {
                   {dialoguePage === "no-response" && (
                     <>
                       <p style={{ fontSize: 9, fontFamily: "'Press Start 2P', monospace", color: "#666", lineHeight: 1.8, marginBottom: 10 }}>
-                        Oh too bad. I guess<br />today is just like<br />any other day.
+                        AAAEEHGG too bad. I guess<br />today is just like<br />any other day.
                       </p>
                       <button
                         onClick={() => { setGameState("room2"); setDialoguePage("question"); }}
@@ -684,10 +722,10 @@ const ValentineGame: React.FC = () => {
                 <div key={m.id} className="absolute" style={{ left: m.x, top: 0, zIndex: 15, animation: `spiderSwing 1.5s ease-in-out infinite`, animationDelay: `${(m.id % 5) * 0.3}s`, transformOrigin: "top center" }}>
                   {/* Vine/web line */}
                   <div style={{ width: 2, height: 120, background: "#556B2F", margin: "0 auto" }} />
-                  <MonkeySprite swinging style={{ position: "relative", left: -13 }} />
+                  <MonkeySprite swinging expr={m.id % 5} style={{ position: "relative", left: -13 }} />
                 </div>
               ) : (
-                <MonkeySprite key={m.id} style={{ left: m.x, top: m.y }} />
+                <MonkeySprite key={m.id} expr={(m.id + 2) % 5} style={{ left: m.x, top: m.y }} />
               )
             )}
 

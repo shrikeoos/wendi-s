@@ -1,6 +1,6 @@
 # wendi-s — Project Context
 
-A pixel art browser game built as a birthday surprise for Etoile. Deployed on GitHub Pages.
+A pixel art browser game built as a birthday surprise for Wendi. Deployed on GitHub Pages.
 
 **Live URL**: https://shrikeoos.github.io/wendi-s/
 

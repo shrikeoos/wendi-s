@@ -19,9 +19,9 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
         <div className="absolute" style={{ bottom: 4, left: 15, width: 2, height: 2, background: "#00CED1" }} />
       </div>
       {/* Hair */}
-      <div className="absolute" style={{ top: 0, left: 4, width: 24, height: 10, background: "#8B4513", borderRadius: "6px 6px 0 0" }} />
-      <div className="absolute" style={{ top: 6, left: 2, width: 4, height: 12, background: "#8B4513" }} />
-      <div className="absolute" style={{ top: 6, left: 26, width: 4, height: 12, background: "#8B4513" }} />
+      <div className="absolute" style={{ top: 0, left: 4, width: 24, height: 10, background: "#1A1A1A", borderRadius: "6px 6px 0 0" }} />
+      <div className="absolute" style={{ top: 6, left: 2, width: 4, height: 12, background: "#1A1A1A" }} />
+      <div className="absolute" style={{ top: 6, left: 26, width: 4, height: 12, background: "#1A1A1A" }} />
       {/* Face */}
       <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#FDBCB4" }} />
       {/* Eyes */}
@@ -36,9 +36,9 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
         <div className="absolute" style={{ top: 14, left: 13, width: 6, height: 2, background: "#E8838A", borderRadius: 2 }} />
       )}
       {/* Body / Dress */}
-      <div className="absolute" style={{ top: 18, left: 6, width: 20, height: 10, background: "#FF69B4", borderRadius: "0 0 4px 4px" }} />
+      <div className="absolute" style={{ top: 18, left: 6, width: 20, height: 10, background: "#D62828", borderRadius: "0 0 4px 4px" }} />
       {/* Dress detail */}
-      <div className="absolute" style={{ top: 20, left: 10, width: 12, height: 2, background: "#FF1493" }} />
+      <div className="absolute" style={{ top: 20, left: 10, width: 12, height: 2, background: "#9A1414" }} />
       {/* Legs */}
       <div className="absolute" style={{ top: 28, left: 9, width: 4, height: 4, background: "#FDBCB4" }} />
       <div className="absolute" style={{ top: 28, left: 19, width: 4, height: 4, background: "#FDBCB4" }} />
@@ -47,7 +47,46 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
 };
 
 // Male NPC sprite
-export const MaleSprite: React.FC<{ collapsed?: boolean }> = ({ collapsed }) => {
+export const MaleSprite: React.FC<{ collapsed?: boolean; shrug?: boolean }> = ({ collapsed, shrug }) => {
+  if (shrug) {
+    // "I dunno" shrug — raised shoulders, bent arms, palms up
+    return (
+      <div className="relative" style={{ width: 32, height: 32, imageRendering: "pixelated", animation: "shrug 1.6s ease-in-out infinite" }}>
+        {/* Hair */}
+        <div className="absolute" style={{ top: 0, left: 6, width: 20, height: 8, background: "#2F1B14", borderRadius: "6px 6px 0 0" }} />
+        {/* Face */}
+        <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#FDBCB4" }} />
+        {/* Puzzled raised eyebrows */}
+        <div className="absolute" style={{ top: 8, left: 9, width: 4, height: 1, background: "#2F1B14", transform: "rotate(-14deg)" }} />
+        <div className="absolute" style={{ top: 8, left: 19, width: 4, height: 1, background: "#2F1B14", transform: "rotate(14deg)" }} />
+        {/* Eyes */}
+        <div className="absolute" style={{ top: 10, left: 10, width: 3, height: 3, background: "#333" }} />
+        <div className="absolute" style={{ top: 10, left: 20, width: 3, height: 3, background: "#333" }} />
+        {/* Flat 'meh' mouth */}
+        <div className="absolute" style={{ top: 15, left: 13, width: 6, height: 2, background: "#C0392B", borderRadius: 1 }} />
+        {/* Body / Shirt */}
+        <div className="absolute" style={{ top: 18, left: 6, width: 20, height: 10, background: "#4169E1", borderRadius: "0 0 4px 4px" }} />
+        {/* Tie */}
+        <div className="absolute" style={{ top: 18, left: 14, width: 4, height: 8, background: "#DC143C" }} />
+        {/* Raised shoulders */}
+        <div className="absolute" style={{ top: 16, left: 3, width: 7, height: 4, background: "#4169E1", borderRadius: "3px 3px 0 0" }} />
+        <div className="absolute" style={{ top: 16, left: 22, width: 7, height: 4, background: "#4169E1", borderRadius: "3px 3px 0 0" }} />
+        {/* Left arm — upper (sleeve) angles down-out, forearm bends up */}
+        <div className="absolute" style={{ top: 18, left: 1, width: 6, height: 3, background: "#4169E1", borderRadius: 2, transform: "rotate(20deg)" }} />
+        <div className="absolute" style={{ top: 13, left: -2, width: 3, height: 8, background: "#FDBCB4", borderRadius: 2, transform: "rotate(-25deg)" }} />
+        {/* Left hand (palm up) */}
+        <div className="absolute" style={{ top: 11, left: -4, width: 5, height: 4, background: "#FDBCB4", borderRadius: "50% 50% 40% 40%" }} />
+        {/* Right arm — mirrored */}
+        <div className="absolute" style={{ top: 18, left: 25, width: 6, height: 3, background: "#4169E1", borderRadius: 2, transform: "rotate(-20deg)" }} />
+        <div className="absolute" style={{ top: 13, left: 31, width: 3, height: 8, background: "#FDBCB4", borderRadius: 2, transform: "rotate(25deg)" }} />
+        {/* Right hand (palm up) */}
+        <div className="absolute" style={{ top: 11, left: 31, width: 5, height: 4, background: "#FDBCB4", borderRadius: "50% 50% 40% 40%" }} />
+        {/* Legs */}
+        <div className="absolute" style={{ top: 28, left: 9, width: 4, height: 4, background: "#2C3E50" }} />
+        <div className="absolute" style={{ top: 28, left: 19, width: 4, height: 4, background: "#2C3E50" }} />
+      </div>
+    );
+  }
   if (collapsed) {
     // Melted/collapsed version
     return (
@@ -82,68 +121,101 @@ export const MaleSprite: React.FC<{ collapsed?: boolean }> = ({ collapsed }) => 
   );
 };
 
-// Wardrobe with overflowing clothes
+// Wardrobe (tidy armoire) with a few clothes peeking out
 export const Wardrobe: React.FC<{ variant?: number }> = ({ variant = 0 }) => {
   const clothesPalettes = [
-    ["#FF69B4", "#FFD700", "#00CED1", "#FF6347"],
-    ["#FF6347", "#9370DB", "#32CD32", "#FF1493"],
-    ["#FF1493", "#00BFFF", "#FFA500", "#7B68EE"],
-    ["#E74C3C", "#2ECC71", "#F1C40F", "#9B59B6"],
-    ["#1ABC9C", "#E91E63", "#FF5722", "#3F51B5"],
-    ["#FF4081", "#FFEB3B", "#00E5FF", "#76FF03"],
+    ["#FF69B4", "#FFD700", "#00CED1"],
+    ["#FF6347", "#9370DB", "#32CD32"],
+    ["#FF1493", "#00BFFF", "#FFA500"],
+    ["#E74C3C", "#2ECC71", "#F1C40F"],
+    ["#1ABC9C", "#E91E63", "#FF8A65"],
+    ["#FF4081", "#FFEB3B", "#26C6DA"],
   ];
   const colors = clothesPalettes[variant % 6];
 
-  // Different wardrobe wood colors
-  const woodColors = ["#8B6914", "#5D4037", "#A0522D", "#6B3A2A", "#8B7355", "#4E342E"];
-  const wood = woodColors[variant % 6];
-  const woodDark = "#3E2723";
+  // Wood tones: [mid, light highlight, dark shadow/outline]
+  const woodSets = [
+    ["#9C6B2E", "#B98641", "#5B3A14"],
+    ["#6D4C36", "#86614A", "#3E2A1C"],
+    ["#A6622F", "#C07C45", "#5C3217"],
+    ["#7B4A33", "#96603F", "#452418"],
+    ["#9A7B4F", "#B49568", "#5A4327"],
+    ["#5E4030", "#785441", "#33211A"],
+  ];
+  const [wood, woodLight, woodDark] = woodSets[variant % 6];
 
-  // Different wardrobe styles based on variant
+  // Style variation
   const isWide = variant % 3 === 1;
   const isTall = variant % 3 === 2;
   const w = isWide ? 52 : 40;
   const h = isTall ? 56 : 48;
 
+  const bodyTop = 8;
+  const bodyLeft = 2;
+  const bodyW = w - 4;
+  const bodyH = h - bodyTop - 4; // leave 4px for feet
+  const mid = Math.floor(w / 2);
+  const doorH = bodyH - 10;
+
+  // panel helper geometry
+  const Panel = ({ left, pw }: { left: number; pw: number }) => (
+    <>
+      <div className="absolute" style={{ top: bodyTop + 6, left, width: pw, height: doorH - 6, background: woodLight, borderRadius: 1 }} />
+      <div className="absolute" style={{ top: bodyTop + 8, left: left + 2, width: pw - 4, height: doorH - 10, background: wood, borderRadius: 1 }} />
+    </>
+  );
+
   return (
     <div className="relative" style={{ width: w, height: h, imageRendering: "pixelated" }}>
-      {/* Wardrobe body */}
-      <div className="absolute" style={{ top: 8, left: 2, width: w - 4, height: h - 8, background: wood, border: `2px solid ${woodDark}`, borderRadius: isTall ? "4px 4px 0 0" : 0 }} />
-      {/* Door line(s) */}
+      {/* Feet */}
+      <div className="absolute" style={{ top: h - 4, left: 5, width: 6, height: 4, background: woodDark }} />
+      <div className="absolute" style={{ top: h - 4, left: w - 11, width: 6, height: 4, background: woodDark }} />
+
+      {/* Body */}
+      <div className="absolute" style={{ top: bodyTop, left: bodyLeft, width: bodyW, height: bodyH, background: wood, border: `2px solid ${woodDark}`, borderRadius: 2 }} />
+
+      {/* Cornice (top trim, slight overhang) */}
+      <div className="absolute" style={{ top: bodyTop - 2, left: 0, width: w, height: 5, background: woodLight, border: `2px solid ${woodDark}`, borderRadius: 2 }} />
+
+      {/* Recessed door panels */}
       {isWide ? (
         <>
-          <div className="absolute" style={{ top: 10, left: Math.floor(w / 3), width: 2, height: h - 12, background: woodDark }} />
-          <div className="absolute" style={{ top: 10, left: Math.floor(w * 2 / 3), width: 2, height: h - 12, background: woodDark }} />
+          <Panel left={bodyLeft + 3} pw={Math.floor(bodyW / 3) - 5} />
+          <Panel left={bodyLeft + Math.floor(bodyW / 3) + 2} pw={Math.floor(bodyW / 3) - 4} />
+          <Panel left={bodyLeft + Math.floor((bodyW * 2) / 3) + 2} pw={Math.floor(bodyW / 3) - 5} />
         </>
       ) : (
-        <div className="absolute" style={{ top: 10, left: Math.floor(w / 2), width: 2, height: h - 12, background: woodDark }} />
-      )}
-      {/* Knobs */}
-      <div className="absolute" style={{ top: Math.floor(h / 2), left: Math.floor(w / 2) - 6, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
-      <div className="absolute" style={{ top: Math.floor(h / 2), left: Math.floor(w / 2) + 4, width: 3, height: 3, background: "#FFD700", borderRadius: "50%" }} />
-
-      {/* Overflowing clothes - top */}
-      <div className="absolute" style={{ top: 0, left: 3, width: 14, height: 10, background: colors[0], borderRadius: "4px 4px 0 0", transform: "rotate(-12deg)" }} />
-      <div className="absolute" style={{ top: -2, left: w - 18, width: 12, height: 12, background: colors[1], borderRadius: "4px 4px 0 0", transform: "rotate(8deg)" }} />
-      <div className="absolute" style={{ top: 2, left: Math.floor(w / 2) - 5, width: 10, height: 8, background: colors[2], borderRadius: "3px 3px 0 0", transform: "rotate(-5deg)" }} />
-
-      {/* Sleeve/cloth hanging out sides */}
-      <div className="absolute" style={{ top: Math.floor(h * 0.6), left: -6, width: 10, height: 5, background: colors[3], borderRadius: 2, transform: "rotate(-18deg)" }} />
-      <div className="absolute" style={{ top: Math.floor(h * 0.4), left: w - 4, width: 12, height: 4, background: colors[0], borderRadius: 2, transform: "rotate(12deg)" }} />
-
-      {/* Dangling item from bottom */}
-      <div className="absolute" style={{ top: h - 4, left: 6, width: 8, height: 8, background: colors[1], borderRadius: "0 0 4px 4px", transform: "rotate(5deg)" }} />
-
-      {/* Extra scarf/sock hanging */}
-      {variant % 2 === 0 && (
-        <div className="absolute" style={{ top: -4, left: w - 8, width: 6, height: 14, background: colors[3], borderRadius: 3, transform: "rotate(20deg)" }} />
-      )}
-      {variant % 2 === 1 && (
         <>
-          <div className="absolute" style={{ top: h - 2, left: w - 14, width: 14, height: 5, background: colors[2], borderRadius: 2, transform: "rotate(-8deg)" }} />
-          <div className="absolute" style={{ top: Math.floor(h * 0.7), left: -4, width: 6, height: 10, background: colors[1], borderRadius: "2px 0 0 2px" }} />
+          <Panel left={bodyLeft + 3} pw={Math.floor(bodyW / 2) - 5} />
+          <Panel left={bodyLeft + Math.floor(bodyW / 2) + 2} pw={Math.floor(bodyW / 2) - 5} />
         </>
       )}
+
+      {/* Door seam(s) */}
+      {isWide ? (
+        <>
+          <div className="absolute" style={{ top: bodyTop + 4, left: Math.floor(w / 3), width: 1, height: doorH, background: woodDark }} />
+          <div className="absolute" style={{ top: bodyTop + 4, left: Math.floor((w * 2) / 3), width: 1, height: doorH, background: woodDark }} />
+        </>
+      ) : (
+        <div className="absolute" style={{ top: bodyTop + 4, left: mid, width: 1, height: doorH, background: woodDark }} />
+      )}
+
+      {/* Knobs (around the centre seam) */}
+      <div className="absolute" style={{ top: bodyTop + Math.floor(bodyH / 2), left: mid - 4, width: 2, height: 2, background: "#FFD700" }} />
+      <div className="absolute" style={{ top: bodyTop + Math.floor(bodyH / 2), left: mid + 3, width: 2, height: 2, background: "#FFD700" }} />
+
+      {/* Folded sweater draped over the top edge */}
+      <div className="absolute" style={{ top: 1, left: 5, width: 13, height: 8, background: colors[0], borderRadius: "3px 3px 1px 1px" }} />
+      <div className="absolute" style={{ top: 4, left: 5, width: 13, height: 2, background: "rgba(0,0,0,0.18)" }} />
+      <div className="absolute" style={{ top: 8, left: 6, width: 5, height: 4, background: colors[0], borderRadius: "0 0 2px 2px" }} />
+
+      {/* Scarf draped over the top-right */}
+      <div className="absolute" style={{ top: 0, left: w - 16, width: 9, height: 7, background: colors[2], borderRadius: "3px 3px 1px 1px" }} />
+      <div className="absolute" style={{ top: 6, left: w - 12, width: 4, height: 9, background: colors[2], borderRadius: "0 0 2px 2px" }} />
+
+      {/* Sleeve poking from the door gap */}
+      <div className="absolute" style={{ top: bodyTop + Math.floor(bodyH * 0.55), left: mid - 1, width: 7, height: 4, background: colors[1], borderRadius: "0 3px 3px 0" }} />
     </div>
   );
 };
@@ -177,100 +249,186 @@ export const Firework: React.FC<{ x: number; y: number; color: string }> = ({ x,
 };
 
 // Baby orangutan sprite
-export const MonkeySprite: React.FC<{ style?: React.CSSProperties; swinging?: boolean }> = ({ style, swinging }) => (
-  <div className="absolute" style={{
-    width: 32, height: 32, imageRendering: "pixelated",
-    ...(swinging ? { animation: "monkeySwing 0.8s ease-in-out infinite", transformOrigin: "top center" } : {}),
-    ...style,
-  }}>
-    {/* Fluffy cheek puffs */}
-    <div className="absolute" style={{ top: 4, left: 0, width: 9, height: 9, background: "#C86420", borderRadius: "50%" }} />
-    <div className="absolute" style={{ top: 4, left: 23, width: 9, height: 9, background: "#C86420", borderRadius: "50%" }} />
-    {/* Head (large & round — baby orangutan) */}
-    <div className="absolute" style={{ top: 0, left: 4, width: 24, height: 20, background: "#C86420", borderRadius: "50% 50% 40% 40%" }} />
-    {/* Face disk (light) */}
-    <div className="absolute" style={{ top: 5, left: 8, width: 16, height: 13, background: "#FFB87A", borderRadius: "40% 40% 50% 50%" }} />
-    {/* Big baby eyes */}
-    <div className="absolute" style={{ top: 7, left: 10, width: 5, height: 5, background: "#111", borderRadius: "50%" }} />
-    <div className="absolute" style={{ top: 7, left: 17, width: 5, height: 5, background: "#111", borderRadius: "50%" }} />
-    {/* Eye highlights */}
-    <div className="absolute" style={{ top: 8, left: 11, width: 2, height: 2, background: "#FFF", borderRadius: "50%" }} />
-    <div className="absolute" style={{ top: 8, left: 18, width: 2, height: 2, background: "#FFF", borderRadius: "50%" }} />
-    {/* Nose */}
-    <div className="absolute" style={{ top: 13, left: 13, width: 6, height: 3, background: "#8B4513", borderRadius: "50%" }} />
-    {/* Mouth */}
-    <div className="absolute" style={{ top: 16, left: 12, width: 8, height: 2, background: "#7A2E00", borderRadius: "0 0 4px 4px" }} />
-    {/* Body */}
-    <div className="absolute" style={{ top: 20, left: 7, width: 18, height: 10, background: "#C86420", borderRadius: "0 0 6px 6px" }} />
-    {/* Belly patch */}
-    <div className="absolute" style={{ top: 22, left: 10, width: 12, height: 7, background: "#D4885E", borderRadius: "50%" }} />
-    {/* Long orangutan arms */}
-    {swinging ? (
-      <>
-        <div className="absolute" style={{ top: 0, left: 9, width: 4, height: 22, background: "#C86420", borderRadius: 3, transform: "rotate(-12deg)" }} />
-        <div className="absolute" style={{ top: 0, left: 19, width: 4, height: 22, background: "#C86420", borderRadius: 3, transform: "rotate(12deg)" }} />
-      </>
-    ) : (
-      <>
-        <div className="absolute" style={{ top: 20, left: 1, width: 4, height: 10, background: "#C86420", borderRadius: 2, transform: "rotate(-20deg)" }} />
-        <div className="absolute" style={{ top: 20, left: 27, width: 4, height: 10, background: "#C86420", borderRadius: 2, transform: "rotate(20deg)" }} />
-      </>
-    )}
-    {/* Tail */}
-    <div className="absolute" style={{ top: 24, left: 26, width: 7, height: 4, background: "#C86420", borderRadius: "0 4px 4px 0" }} />
-  </div>
-);
+export const MonkeySprite: React.FC<{ style?: React.CSSProperties; swinging?: boolean; expr?: number }> = ({ style, swinging, expr = 0 }) => {
+  const fur = "#B5651D";
+  const furDark = "#7A3F12";
+  const face = "#E8A36A";
+  const muzzle = "#F2C79A";
+  const tongue = "#E87A8A";
+  const e = ((expr % 5) + 5) % 5; // 0:happy 1:grin 2:surprised 3:wink 4:joyful
+  return (
+    <div className="absolute" style={{
+      width: 32, height: 32, imageRendering: "pixelated",
+      ...(swinging ? { animation: "monkeySwing 0.8s ease-in-out infinite", transformOrigin: "top center" } : {}),
+      ...style,
+    }}>
+      {/* Long arms (drawn first so they sit behind the body) */}
+      {swinging ? (
+        <>
+          <div className="absolute" style={{ top: 1, left: 8, width: 4, height: 21, background: fur, borderRadius: 3, transform: "rotate(-14deg)" }} />
+          <div className="absolute" style={{ top: 1, left: 20, width: 4, height: 21, background: fur, borderRadius: 3, transform: "rotate(14deg)" }} />
+          {/* hands gripping up */}
+          <div className="absolute" style={{ top: 0, left: 7, width: 5, height: 4, background: furDark, borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: 0, left: 20, width: 5, height: 4, background: furDark, borderRadius: "50%" }} />
+        </>
+      ) : (
+        <>
+          {/* Arms pivot from the shoulders so they stay attached to the body */}
+          <div className="absolute" style={{ top: 19, left: 6, width: 4, height: 11, background: fur, borderRadius: 3, transformOrigin: "top center", transform: "rotate(-18deg)" }} />
+          <div className="absolute" style={{ top: 19, left: 22, width: 4, height: 11, background: fur, borderRadius: 3, transformOrigin: "top center", transform: "rotate(18deg)" }} />
+          <div className="absolute" style={{ top: 28, left: 2, width: 5, height: 4, background: furDark, borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: 28, left: 25, width: 5, height: 4, background: furDark, borderRadius: "50%" }} />
+        </>
+      )}
 
-// Orange cat sprite — front-facing so both eyes are always visible
-// facing prop flips the tail side via scaleX
-export const CatSprite: React.FC<{ facing?: "left" | "right" }> = ({ facing = "right" }) => (
-  <div className="relative" style={{ width: 34, height: 32, imageRendering: "pixelated", transform: facing === "left" ? "scaleX(-1)" : undefined }}>
-    {/* Left ear */}
-    <div className="absolute" style={{ top: -4, left: 6, width: 0, height: 0, borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderBottom: "10px solid #FF8C00" }} />
-    {/* Left inner ear */}
-    <div className="absolute" style={{ top: -1, left: 8, width: 0, height: 0, borderLeft: "3px solid transparent", borderRight: "3px solid transparent", borderBottom: "6px solid #FF69B4" }} />
-    {/* Right ear */}
-    <div className="absolute" style={{ top: -4, left: 21, width: 0, height: 0, borderLeft: "6px solid transparent", borderRight: "6px solid transparent", borderBottom: "10px solid #FF8C00" }} />
-    {/* Right inner ear */}
-    <div className="absolute" style={{ top: -1, left: 23, width: 0, height: 0, borderLeft: "3px solid transparent", borderRight: "3px solid transparent", borderBottom: "6px solid #FF69B4" }} />
-    {/* Head */}
-    <div className="absolute" style={{ top: 1, left: 4, width: 26, height: 18, background: "#FF8C00", borderRadius: "50% 50% 38% 38%" }} />
-    {/* Face (lighter centre) */}
-    <div className="absolute" style={{ top: 6, left: 9, width: 16, height: 11, background: "#FFB048", borderRadius: "40%" }} />
-    {/* Left eye — iris */}
-    <div className="absolute" style={{ top: 7, left: 9, width: 6, height: 6, background: "#3DB547", borderRadius: "50%" }} />
-    {/* Left eye — pupil */}
-    <div className="absolute" style={{ top: 8, left: 11, width: 2, height: 4, background: "#111", borderRadius: "50%" }} />
-    {/* Left eye — shine */}
-    <div className="absolute" style={{ top: 8, left: 11, width: 1, height: 1, background: "#FFF" }} />
-    {/* Right eye — iris */}
-    <div className="absolute" style={{ top: 7, left: 20, width: 6, height: 6, background: "#3DB547", borderRadius: "50%" }} />
-    {/* Right eye — pupil */}
-    <div className="absolute" style={{ top: 8, left: 22, width: 2, height: 4, background: "#111", borderRadius: "50%" }} />
-    {/* Right eye — shine */}
-    <div className="absolute" style={{ top: 8, left: 22, width: 1, height: 1, background: "#FFF" }} />
-    {/* Nose */}
-    <div className="absolute" style={{ top: 14, left: 15, width: 5, height: 3, background: "#FF69B4", borderRadius: "50%" }} />
-    {/* Mouth — left curve */}
-    <div className="absolute" style={{ top: 17, left: 11, width: 5, height: 2, background: "#CC5577", borderRadius: "0 0 4px 0" }} />
-    {/* Mouth — right curve */}
-    <div className="absolute" style={{ top: 17, left: 18, width: 5, height: 2, background: "#CC5577", borderRadius: "0 0 0 4px" }} />
-    {/* Body */}
-    <div className="absolute" style={{ top: 18, left: 5, width: 24, height: 12, background: "#FF8C00", borderRadius: "0 0 8px 8px" }} />
-    {/* Belly */}
-    <div className="absolute" style={{ top: 20, left: 10, width: 14, height: 8, background: "#FFF0C8", borderRadius: "50%" }} />
-    {/* Body stripe left */}
-    <div className="absolute" style={{ top: 19, left: 5, width: 2, height: 10, background: "#CC6600", opacity: 0.4, borderRadius: 1 }} />
-    {/* Body stripe right */}
-    <div className="absolute" style={{ top: 19, left: 27, width: 2, height: 10, background: "#CC6600", opacity: 0.4, borderRadius: 1 }} />
-    {/* Paw left */}
-    <div className="absolute" style={{ bottom: 0, left: 7, width: 7, height: 5, background: "#FF9020", borderRadius: "50% 50% 60% 60%" }} />
-    {/* Paw right */}
-    <div className="absolute" style={{ bottom: 0, left: 20, width: 7, height: 5, background: "#FF9020", borderRadius: "50% 50% 60% 60%" }} />
-    {/* Tail — on the right side, flips with scaleX */}
-    <div className="absolute" style={{ bottom: 4, left: 30, width: 10, height: 5, background: "#E07810", borderRadius: "0 50% 50% 0", transform: "rotate(-15deg)" }} />
-  </div>
-);
+      {/* Body */}
+      <div className="absolute" style={{ top: 19, left: 8, width: 16, height: 11, background: fur, borderRadius: "6px 6px 7px 7px" }} />
+      {/* Belly patch */}
+      <div className="absolute" style={{ top: 21, left: 11, width: 10, height: 8, background: muzzle, borderRadius: "50%" }} />
+      {/* Feet */}
+      <div className="absolute" style={{ top: 29, left: 10, width: 5, height: 3, background: furDark, borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 29, left: 17, width: 5, height: 3, background: furDark, borderRadius: "50%" }} />
+
+      {/* Fluffy head fur (slightly wider halo) */}
+      <div className="absolute" style={{ top: 1, left: 3, width: 26, height: 20, background: furDark, borderRadius: "50% 50% 45% 45%" }} />
+      {/* Head */}
+      <div className="absolute" style={{ top: 2, left: 5, width: 22, height: 18, background: fur, borderRadius: "50% 50% 45% 45%" }} />
+      {/* Wispy top tuft */}
+      <div className="absolute" style={{ top: 0, left: 14, width: 4, height: 4, background: furDark, borderRadius: "50% 50% 0 0" }} />
+      {/* Ears */}
+      <div className="absolute" style={{ top: 7, left: 3, width: 5, height: 6, background: fur, borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 7, left: 24, width: 5, height: 6, background: fur, borderRadius: "50%" }} />
+
+      {/* Face disk */}
+      <div className="absolute" style={{ top: 5, left: 9, width: 14, height: 13, background: face, borderRadius: "45% 45% 50% 50%" }} />
+      {/* Brow line */}
+      <div className="absolute" style={{ top: 7, left: 10, width: 12, height: 2, background: "rgba(0,0,0,0.12)", borderRadius: 2 }} />
+
+      {/* Eyes — vary by expression */}
+      {e === 4 ? (
+        // joyful closed eyes (^ ^)
+        <>
+          <div className="absolute" style={{ top: 9, left: 10, width: 5, height: 3, borderTop: "2px solid #1A1A1A", borderRadius: "70% 70% 0 0" }} />
+          <div className="absolute" style={{ top: 9, left: 17, width: 5, height: 3, borderTop: "2px solid #1A1A1A", borderRadius: "70% 70% 0 0" }} />
+        </>
+      ) : e === 3 ? (
+        // wink — left open, right closed line
+        <>
+          <div className="absolute" style={{ top: 8, left: 11, width: 4, height: 5, background: "#1A1A1A", borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: 9, left: 12, width: 1, height: 2, background: "#FFF" }} />
+          <div className="absolute" style={{ top: 11, left: 17, width: 5, height: 2, background: "#1A1A1A", borderRadius: 2 }} />
+        </>
+      ) : (
+        // round eyes (wider for surprised)
+        <>
+          <div className="absolute" style={{ top: e === 2 ? 7 : 8, left: e === 2 ? 10 : 11, width: e === 2 ? 5 : 4, height: e === 2 ? 6 : 5, background: "#1A1A1A", borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: e === 2 ? 7 : 8, left: e === 2 ? 17 : 17, width: e === 2 ? 5 : 4, height: e === 2 ? 6 : 5, background: "#1A1A1A", borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: 9, left: 12, width: 1, height: 2, background: "#FFF" }} />
+          <div className="absolute" style={{ top: 9, left: 18, width: 1, height: 2, background: "#FFF" }} />
+        </>
+      )}
+
+      {/* Nose nostrils */}
+      <div className="absolute" style={{ top: 13, left: 13, width: 2, height: 2, background: "#7A2E00", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 13, left: 17, width: 2, height: 2, background: "#7A2E00", borderRadius: "50%" }} />
+
+      {/* Light muzzle base */}
+      <div className="absolute" style={{ top: 15, left: 11, width: 10, height: 4, background: muzzle, borderRadius: "0 0 50% 50%" }} />
+
+      {/* Mouth — vary by expression */}
+      {e === 0 && (
+        // happy open smile
+        <div className="absolute" style={{ top: 14, left: 11, width: 10, height: 6, borderBottom: "2px solid #7A2E00", borderRadius: "0 0 65% 65%" }} />
+      )}
+      {e === 1 && (
+        // big grin with tongue
+        <>
+          <div className="absolute" style={{ top: 15, left: 12, width: 8, height: 5, background: "#5A2200", borderRadius: "30% 30% 55% 55%" }} />
+          <div className="absolute" style={{ top: 17, left: 14, width: 4, height: 3, background: tongue, borderRadius: "40% 40% 50% 50%" }} />
+        </>
+      )}
+      {e === 2 && (
+        // surprised O
+        <div className="absolute" style={{ top: 15, left: 13, width: 5, height: 5, background: "#5A2200", borderRadius: "50%" }} />
+      )}
+      {e === 3 && (
+        // cheeky smile, tongue poking out
+        <>
+          <div className="absolute" style={{ top: 14, left: 12, width: 8, height: 4, borderBottom: "2px solid #7A2E00", borderRadius: "0 0 60% 60%" }} />
+          <div className="absolute" style={{ top: 17, left: 16, width: 4, height: 3, background: tongue, borderRadius: "0 0 50% 50%" }} />
+        </>
+      )}
+      {e === 4 && (
+        // joyful big smile + rosy cheeks
+        <>
+          <div className="absolute" style={{ top: 14, left: 11, width: 10, height: 6, borderBottom: "2px solid #7A2E00", borderRadius: "0 0 65% 65%" }} />
+          <div className="absolute" style={{ top: 13, left: 7, width: 3, height: 2, background: "rgba(255,120,120,0.5)", borderRadius: "50%" }} />
+          <div className="absolute" style={{ top: 13, left: 22, width: 3, height: 2, background: "rgba(255,120,120,0.5)", borderRadius: "50%" }} />
+        </>
+      )}
+    </div>
+  );
+};
+
+// Orange cat sprite — front-facing sitting tabby so both eyes stay visible
+// facing prop flips the curled tail side via scaleX
+export const CatSprite: React.FC<{ facing?: "left" | "right" }> = ({ facing = "right" }) => {
+  const orange = "#F2913C";
+  const orangeDark = "#D9772A";
+  const belly = "#FFE7BE";
+  const ear = "#FFB3C6";
+  return (
+    <div className="relative" style={{ width: 34, height: 32, imageRendering: "pixelated", transform: facing === "left" ? "scaleX(-1)" : undefined }}>
+      {/* Sitting body */}
+      <div className="absolute" style={{ top: 16, left: 7, width: 20, height: 16, background: orange, borderRadius: "45% 45% 40% 40%" }} />
+      {/* Chest / belly */}
+      <div className="absolute" style={{ top: 18, left: 12, width: 10, height: 13, background: belly, borderRadius: "50% 50% 45% 45%" }} />
+      {/* Front paws */}
+      <div className="absolute" style={{ bottom: 0, left: 11, width: 5, height: 5, background: orange, borderRadius: "40% 40% 50% 50%" }} />
+      <div className="absolute" style={{ bottom: 0, left: 18, width: 5, height: 5, background: orange, borderRadius: "40% 40% 50% 50%" }} />
+      {/* Curled tail wrapping the front (right side, flips with scaleX) */}
+      <div className="absolute" style={{ bottom: -1, left: 22, width: 11, height: 6, background: orangeDark, borderRadius: "0 50% 50% 50%" }} />
+      <div className="absolute" style={{ bottom: 0, left: 26, width: 3, height: 3, background: orange, borderRadius: "50%" }} />
+
+      {/* Ears (symmetric around head centre x=17) */}
+      <div className="absolute" style={{ top: -2, left: 7, width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderBottom: `9px solid ${orange}` }} />
+      <div className="absolute" style={{ top: 2, left: 10, width: 0, height: 0, borderLeft: "2px solid transparent", borderRight: "2px solid transparent", borderBottom: `5px solid ${ear}` }} />
+      <div className="absolute" style={{ top: -2, left: 17, width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderBottom: `9px solid ${orange}` }} />
+      <div className="absolute" style={{ top: 2, left: 20, width: 0, height: 0, borderLeft: "2px solid transparent", borderRight: "2px solid transparent", borderBottom: `5px solid ${ear}` }} />
+
+      {/* Head */}
+      <div className="absolute" style={{ top: 4, left: 5, width: 24, height: 17, background: orange, borderRadius: "45% 45% 42% 42%" }} />
+      {/* Tabby forehead stripes (M) */}
+      <div className="absolute" style={{ top: 5, left: 14, width: 2, height: 5, background: orangeDark, borderRadius: 1 }} />
+      <div className="absolute" style={{ top: 5, left: 18, width: 2, height: 5, background: orangeDark, borderRadius: 1 }} />
+      <div className="absolute" style={{ top: 4, left: 9, width: 2, height: 4, background: orangeDark, borderRadius: 1, transform: "rotate(20deg)" }} />
+      <div className="absolute" style={{ top: 4, left: 23, width: 2, height: 4, background: orangeDark, borderRadius: 1, transform: "rotate(-20deg)" }} />
+      {/* Muzzle (lighter lower face) */}
+      <div className="absolute" style={{ top: 12, left: 10, width: 14, height: 8, background: belly, borderRadius: "40% 40% 50% 50%" }} />
+
+      {/* Eyes */}
+      <div className="absolute" style={{ top: 9, left: 10, width: 5, height: 6, background: "#5BBF4A", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 9, left: 19, width: 5, height: 6, background: "#5BBF4A", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 10, left: 12, width: 2, height: 4, background: "#1A1A1A", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 10, left: 21, width: 2, height: 4, background: "#1A1A1A", borderRadius: "50%" }} />
+      <div className="absolute" style={{ top: 10, left: 11, width: 1, height: 1, background: "#FFF" }} />
+      <div className="absolute" style={{ top: 10, left: 20, width: 1, height: 1, background: "#FFF" }} />
+
+      {/* Nose */}
+      <div className="absolute" style={{ top: 15, left: 15, width: 4, height: 3, background: "#E8769A", borderRadius: "0 0 50% 50%" }} />
+      {/* Mouth */}
+      <div className="absolute" style={{ top: 18, left: 16, width: 2, height: 2, background: orangeDark, borderRadius: 1 }} />
+      <div className="absolute" style={{ top: 18, left: 13, width: 3, height: 1, background: orangeDark, borderRadius: 1 }} />
+      <div className="absolute" style={{ top: 18, left: 18, width: 3, height: 1, background: orangeDark, borderRadius: 1 }} />
+
+      {/* Whiskers */}
+      <div className="absolute" style={{ top: 15, left: 1, width: 8, height: 1, background: "rgba(255,255,255,0.85)", transform: "rotate(-6deg)" }} />
+      <div className="absolute" style={{ top: 18, left: 1, width: 8, height: 1, background: "rgba(255,255,255,0.85)", transform: "rotate(6deg)" }} />
+      <div className="absolute" style={{ top: 15, left: 25, width: 8, height: 1, background: "rgba(255,255,255,0.85)", transform: "rotate(6deg)" }} />
+      <div className="absolute" style={{ top: 18, left: 25, width: 8, height: 1, background: "rgba(255,255,255,0.85)", transform: "rotate(-6deg)" }} />
+    </div>
+  );
+};
 
 // Bouquet of flowers (for NPC gift)
 export const BouquetSprite: React.FC = () => (
@@ -344,22 +502,25 @@ export const FlowerSprite: React.FC<{ type: 'tulip' | 'lily' | 'hydrangea' }> = 
 // Peeking baby orangutan face (for behind-cabinet effect)
 export const PeekingMonkeyFace: React.FC<{ flipped?: boolean }> = ({ flipped }) => (
   <div style={{ width: 24, height: 22, imageRendering: "pixelated", position: "relative", transform: flipped ? "scaleX(-1)" : undefined }}>
-    {/* Fluffy cheek puff on visible side */}
-    <div className="absolute" style={{ top: 4, left: -3, width: 9, height: 9, background: "#C86420", borderRadius: "50%" }} />
+    {/* Fluffy fur halo */}
+    <div className="absolute" style={{ top: 0, left: 1, width: 22, height: 19, background: "#7A3F12", borderRadius: "50% 50% 45% 45%" }} />
     {/* Head */}
-    <div className="absolute" style={{ top: 0, left: 2, width: 20, height: 18, background: "#C86420", borderRadius: "50% 50% 40% 40%" }} />
+    <div className="absolute" style={{ top: 1, left: 3, width: 18, height: 17, background: "#B5651D", borderRadius: "50% 50% 45% 45%" }} />
+    {/* Ear on visible side */}
+    <div className="absolute" style={{ top: 6, left: 1, width: 4, height: 5, background: "#B5651D", borderRadius: "50%" }} />
     {/* Face disk */}
-    <div className="absolute" style={{ top: 4, left: 5, width: 14, height: 12, background: "#FFB87A", borderRadius: "40%" }} />
+    <div className="absolute" style={{ top: 4, left: 6, width: 13, height: 12, background: "#E8A36A", borderRadius: "45% 45% 50% 50%" }} />
     {/* Big surprised eyes */}
-    <div className="absolute" style={{ top: 6, left: 6, width: 5, height: 5, background: "#111", borderRadius: "50%" }} />
-    <div className="absolute" style={{ top: 6, left: 13, width: 5, height: 5, background: "#111", borderRadius: "50%" }} />
+    <div className="absolute" style={{ top: 6, left: 7, width: 5, height: 6, background: "#1A1A1A", borderRadius: "50%" }} />
+    <div className="absolute" style={{ top: 6, left: 13, width: 5, height: 6, background: "#1A1A1A", borderRadius: "50%" }} />
     {/* Eye highlights */}
-    <div className="absolute" style={{ top: 7, left: 7, width: 2, height: 2, background: "#FFF", borderRadius: "50%" }} />
+    <div className="absolute" style={{ top: 7, left: 8, width: 2, height: 2, background: "#FFF", borderRadius: "50%" }} />
     <div className="absolute" style={{ top: 7, left: 14, width: 2, height: 2, background: "#FFF", borderRadius: "50%" }} />
-    {/* Nose */}
-    <div className="absolute" style={{ top: 12, left: 9, width: 6, height: 3, background: "#8B4513", borderRadius: "50%" }} />
+    {/* Nostrils */}
+    <div className="absolute" style={{ top: 12, left: 9, width: 2, height: 2, background: "#7A2E00", borderRadius: "50%" }} />
+    <div className="absolute" style={{ top: 12, left: 13, width: 2, height: 2, background: "#7A2E00", borderRadius: "50%" }} />
     {/* Surprised mouth (O shape) */}
-    <div className="absolute" style={{ top: 15, left: 11, width: 4, height: 3, background: "#7A2E00", borderRadius: "50%" }} />
+    <div className="absolute" style={{ top: 15, left: 10, width: 4, height: 4, background: "#7A2E00", borderRadius: "50%" }} />
   </div>
 );
 
