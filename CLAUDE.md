@@ -25,7 +25,7 @@ src/
       geometry.ts           # rectsOverlap, randomExitPosition, placeExits
       RoomView.tsx          # Renders ANY room from data (floor, walls, entities, exits, prompts)
       DialogueBox.tsx       # Renders ANY dialogue node (text + choices + bubble)
-      useWander.ts          # Reusable "wandering creature" system (the cat)
+      useWander.ts          # Reusable "wandering creature" system (the cat); collides with solids
       usePeek.tsx           # Reusable "peek from behind nearest solid" system (the monkey)
     data/
       rooms.tsx             # room1 & room2 defined as DATA (entities, exits, systems)
@@ -83,7 +83,9 @@ This keeps room/dialogue files declarative and serializable.
 
 ### Room 1 (wardrobe room) — `systems: { wander, peek }`
 - White floor w/ pink dot pattern; 13 wardrobes (6 visual variants); 13 flowers (tulip/lily/hydrangea)
-- Random door each visit → Room 2. Cat "Poulet" wanders; click → "My name is Poulet!"
+- Random door each visit → Room 2. Cat "Poulet" wanders (now bouncing off wardrobes too — see
+  `useWander`); click → "My name is Poulet!". A soft pulsing glow (`catGlow`) hints the cat is
+  clickable; it disappears for good after the first click (`catClicked`)
 - Baby orangutan slides out from behind the nearest wardrobe within `PEEK_DIST`, retracts on leave
 - Opening hint is a subtle thought bubble over the player (*"...there must be a way out"*), not a
   bottom pill — it fades out 2s after she first moves (`thoughtBob` / `thoughtFade`), and resets on
@@ -91,6 +93,8 @@ This keeps room/dialogue files declarative and serializable.
 
 ### Room 2 (NPC room)
 - Pink walls, checkerboard floor. Male NPC center; approach + Space to talk. Back door (left) → Room 1
+- Entry spawn sits at `x: 200` (well clear of the left back door) so a held Left key doesn't walk
+  the player straight back into Room 1
 
 ### Dialogue flow (`data/dialogue.ts`)
 1. `question`: *"Hey Etoile, do you know what's special about today?"* → Yes / No
@@ -120,7 +124,7 @@ This keeps room/dialogue files declarative and serializable.
 
 | Export | Description |
 |---|---|
-| `FemaleSprite` | Player character, 4-directional (black hair, red dress) |
+| `FemaleSprite` | Player character, 4-directional (black hair, red dress); `up` hides the face and shows the back of her hair |
 | `MaleSprite` | NPC; `collapsed` / `shrug` variants; `look` shifts pupils toward the player |
 | `Wardrobe` | 6 variants (wide/tall/normal, different wood tones) |
 | `Door` | Brown rounded door, 28×44px |
@@ -129,15 +133,18 @@ This keeps room/dialogue files declarative and serializable.
 | `PeekingMonkeyFace` | Partial orangutan head for the cabinet peek |
 | `CatSprite` | Front-facing sitting tabby; `facing` prop flips via scaleX |
 | `BouquetSprite` | Flower bouquet (unused in current flow) |
-| `FlowerSprite` | `type`: tulip / lily / hydrangea |
+| `FlowerSprite` | `type`: tulip / lily / hydrangea; the white lily has a faint `drop-shadow` halo so it reads against the near-white room1 floor |
 | `RainCloud` | Animated rain, used in no-ending |
 
 ## CSS animations (inline in `ValentineGame.tsx` `<style>`, available to all scenes)
 
 `rainDrop`, `bounceText`, `floatExclaim`, `npcCollapse`, `nyaShake`, `monkeySwing`, `spiderSwing`,
 `flashyGradient`, `peekIn`/`peekInLeft`/`peekInTop` + `peekOut`/`peekOutLeft`/`peekOutTop`,
-`flashIn`, `bouquetPop`, `catWalk`, `shrug`, `fireworkFly`, `fireworkFlash`, `hintPulse`,
+`flashIn`, `bouquetPop`, `catWalk`, `catGlow`, `shrug`, `fireworkFly`, `fireworkFlash`, `hintPulse`,
 `thoughtBob`, `thoughtFade`
+
+The cat's container also carries a `.cat-clickable` hover rule (scales up on mouseover) as a
+second discoverability cue.
 
 `fireworkFly` uses per-particle `--dx`/`--dy` CSS custom properties to launch each particle
 outward to its target offset.
@@ -146,7 +153,13 @@ outward to its target offset.
 
 - Game scales to fill the window via `Math.min(innerWidth/ROOM_W, innerHeight/ROOM_H)`
 - Movement is frozen while `dialogueNode !== null`
-- Collision reverts **both axes** on overlap (no wall-sliding) — intentional, keep it
+- Collision reverts **both axes** on overlap (no wall-sliding) — intentional, keep it. The cat
+  (`useWander`) instead resolves **per-axis** against the room's solids so it slides along
+  wardrobes rather than sticking; its collision box is inset from the sprite
+- Exits only fire once the player has stepped clear of **every** exit since entering a room
+  (`exitArmedRef`, reset in `enterRoom` / `handleRestart` / `handleRetry`). This stops the player
+  from bouncing straight back through the door they arrived from, and guards against a random door
+  spawning on top of the player
 - Player position is preserved on dialogue close; reset only on room transition (and the room1
   door is re-randomized on each room1 entry)
 - The peek system measures distance/offset from an entity's `footprint`, not its collision `w/h`
