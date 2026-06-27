@@ -73,7 +73,7 @@ const room1Exit: Exit = {
   w: DOOR_W,
   h: DOOR_H,
   to: "room2",
-  spawn: { x: 80, y: ROOM_H / 2 - 16 },
+  spawn: { x: 200, y: ROOM_H / 2 - 16 },
   sprite: <Door />,
   random: true,
 };
@@ -97,7 +97,6 @@ const room1: Room = {
   entities: [...flowers, ...wardrobes],
   exits: [room1Exit],
   spawn: { x: ROOM_W / 2 - 16, y: ROOM_H / 2 - 16 },
-  hint: "Arrow keys to move → Find the door!",
   systems: { wander: true, peek: true },
 };
 
@@ -166,7 +165,7 @@ const room2: Room = {
   ),
   entities: [...hearts, npc],
   exits: [room2Exit],
-  spawn: { x: 80, y: ROOM_H / 2 - 16 },
+  spawn: { x: 200, y: ROOM_H / 2 - 16 },
 };
 
 export const ROOMS: Record<RoomId, Room> = { room1, room2 };

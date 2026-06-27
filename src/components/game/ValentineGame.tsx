@@ -44,9 +44,13 @@ const ValentineGame: React.FC = () => {
   const [dialogueNode, setDialogueNode] = useState<string | null>(null);
   const [nearInteractId, setNearInteractId] = useState<string | null>(null);
   const [showCatSpeech, setShowCatSpeech] = useState(false);
+  const [catClicked, setCatClicked] = useState(false);
   const [showBouquet, setShowBouquet] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
   const [scale, setScale] = useState(1);
+  // Player's opening thought — fades out shortly after she starts moving
+  const [showThought, setShowThought] = useState(true);
+  const [thoughtHiding, setThoughtHiding] = useState(false);
 
   const keysRef = useRef<Set<string>>(new Set());
   const rafRef = useRef<number>(0);
@@ -55,6 +59,12 @@ const ValentineGame: React.FC = () => {
   const exitsRef = useRef<Exit[]>(exits);
   const dialogueRef = useRef<string | null>(dialogueNode);
   const nearInteractRef = useRef<string | null>(nearInteractId);
+  // An exit can only fire once the player has stepped clear of every exit since
+  // entering the room — prevents instantly bouncing back through the door you
+  // arrived from (or a random door that spawned on top of the player).
+  const exitArmedRef = useRef(false);
+  // Started once the player first moves; fires the thought-bubble fade-out
+  const thoughtTimerRef = useRef<number | null>(null);
 
   const room = ROOMS[roomId];
   const solids = useMemo(() => room.entities.filter(e => e.solid), [room]);
@@ -67,7 +77,7 @@ const ValentineGame: React.FC = () => {
 
   // Systems
   const catActive = screen === "play" && !!room.systems?.wander;
-  const cat = useWander(catActive);
+  const cat = useWander(catActive, solids);
   const peekNode = usePeek(solids, pos, screen === "play" && !!room.systems?.peek);
 
   // ---- actions (data references these by id) --------------------------------
@@ -107,6 +117,7 @@ const ValentineGame: React.FC = () => {
   };
 
   const handleCatClick = () => {
+    setCatClicked(true);
     setShowCatSpeech(true);
     setTimeout(() => setShowCatSpeech(false), 2500);
   };
@@ -117,6 +128,7 @@ const ValentineGame: React.FC = () => {
     roomIdRef.current = ex.to;
     exitsRef.current = placed;
     posRef.current = { ...ex.spawn };
+    exitArmedRef.current = false;
     setRoomId(ex.to);
     setExits(placed);
     setPos({ ...ex.spawn });
@@ -128,6 +140,7 @@ const ValentineGame: React.FC = () => {
     roomIdRef.current = "room1";
     exitsRef.current = placed;
     posRef.current = { ...ROOMS.room1.spawn };
+    exitArmedRef.current = false;
     setScreen("play");
     setRoomId("room1");
     setExits(placed);
@@ -135,12 +148,19 @@ const ValentineGame: React.FC = () => {
     setDialogueNode(null);
     setShowBouquet(false);
     setShowTransition(false);
+    if (thoughtTimerRef.current !== null) {
+      clearTimeout(thoughtTimerRef.current);
+      thoughtTimerRef.current = null;
+    }
+    setShowThought(true);
+    setThoughtHiding(false);
   };
 
   const handleRetry = () => {
     const placed = placeExits(ROOMS.room2.exits, ROOMS.room2.entities.filter(e => e.solid));
     roomIdRef.current = "room2";
     exitsRef.current = placed;
+    exitArmedRef.current = false;
     setScreen("play");
     setRoomId("room2");
     setExits(placed);
@@ -198,6 +218,10 @@ const ValentineGame: React.FC = () => {
         if (keys.has("ArrowRight") || keys.has("d")) { dx = SPEED; setDir("right"); }
 
         if (dx !== 0 || dy !== 0) {
+          // First step taken — start the 2s countdown to dismiss the thought
+          if (thoughtTimerRef.current === null) {
+            thoughtTimerRef.current = window.setTimeout(() => setThoughtHiding(true), 2000);
+          }
           const prev = posRef.current;
           let nx = Math.max(0, Math.min(ROOM_W - TILE, prev.x + dx));
           let ny = Math.max(0, Math.min(ROOM_H - TILE, prev.y + dy));
@@ -211,12 +235,15 @@ const ValentineGame: React.FC = () => {
             }
           }
 
-          // Exit transition
+          // Exit transition — only after the player has cleared every exit once
+          // (see exitArmedRef), so you can't bounce straight back in.
           let hitExit: Exit | null = null;
           for (const ex of exitsRef.current) {
             if (rectsOverlap(nx, ny, TILE, TILE, ex.x, ex.y, ex.w, ex.h)) { hitExit = ex; break; }
           }
-          if (hitExit) {
+          if (!exitArmedRef.current) {
+            if (!hitExit) exitArmedRef.current = true;
+          } else if (hitExit) {
             enterRoom(hitExit);
             rafRef.current = requestAnimationFrame(loop);
             return;
@@ -279,6 +306,11 @@ const ValentineGame: React.FC = () => {
         @keyframes catWalk { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
         @keyframes shrug { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
         @keyframes hintPulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } }
+        @keyframes thoughtBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        @keyframes thoughtFade { from { opacity: 1; } to { opacity: 0; transform: translateY(-6px); } }
+        @keyframes catGlow { 0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.85); } 50% { opacity: 0.55; transform: translateX(-50%) scale(1.1); } }
+        .cat-clickable { transition: transform 0.12s ease-out; }
+        .cat-clickable:hover { transform: scale(1.12); }
       `}</style>
 
       {/* Game viewport */}
@@ -303,19 +335,66 @@ const ValentineGame: React.FC = () => {
             {/* Player */}
             <div className="absolute transition-none" style={{ left: pos.x, top: pos.y, zIndex: 10 }}>
               <FemaleSprite direction={dir} />
+
+              {/* Opening thought — a subtle nudge that fades once she moves */}
+              {roomId === "room1" && showThought && (
+                <div
+                  className="absolute"
+                  style={{
+                    bottom: "150%", left: "50%", transform: "translateX(-50%)",
+                    zIndex: 20, pointerEvents: "none",
+                    animation: thoughtHiding ? "thoughtFade 0.6s ease-in forwards" : undefined,
+                  }}
+                  onAnimationEnd={() => { if (thoughtHiding) setShowThought(false); }}
+                >
+                  <div style={{ animation: thoughtHiding ? undefined : "thoughtBob 2.6s ease-in-out infinite", position: "relative" }}>
+                    <div style={{
+                      background: "white", border: "2px solid #FFB6C1",
+                      borderRadius: 10, padding: "5px 7px",
+                      fontSize: 6, fontFamily: "'Press Start 2P', monospace",
+                      color: "#888", whiteSpace: "nowrap", letterSpacing: "-0.5px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    }}>
+                      ...there must be a way out
+                    </div>
+                    {/* Thought-bubble trail (two shrinking puffs) */}
+                    <div style={{
+                      position: "absolute", bottom: -7, left: "50%", marginLeft: -5.5,
+                      width: 7, height: 7, borderRadius: "50%",
+                      background: "white", border: "2px solid #FFB6C1",
+                    }} />
+                    <div style={{
+                      position: "absolute", bottom: -13, left: "50%", marginLeft: -4,
+                      width: 4, height: 4, borderRadius: "50%",
+                      background: "white", border: "2px solid #FFB6C1",
+                    }} />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Cat (wander system) */}
             {room.systems?.wander && (
               <div
-                className="absolute"
+                className="absolute cat-clickable"
                 style={{ left: cat.pos.x, top: cat.pos.y, zIndex: 7, cursor: "pointer", animation: "catWalk 0.4s ease-in-out infinite" }}
                 onClick={handleCatClick}
               >
+                {!catClicked && (
+                  <div className="absolute" style={{
+                    left: "50%", top: "50%", width: 48, height: 48,
+                    marginTop: -24,
+                    transform: "translateX(-50%)",
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle, rgba(255,182,193,0.9) 0%, rgba(255,140,0,0.35) 45%, transparent 70%)",
+                    animation: "catGlow 2.4s ease-in-out infinite",
+                    pointerEvents: "none", zIndex: -1,
+                  }} />
+                )}
                 <CatSprite facing={cat.facing} />
                 {showCatSpeech && (
                   <div className="absolute" style={{
-                    bottom: "110%", left: "50%", transform: "translateX(-50%)",
+                    bottom: "165%", left: "50%", transform: "translateX(-50%)",
                     background: "white", border: "2px solid #FF8C00",
                     borderRadius: 8, padding: "4px 8px",
                     fontSize: 7, fontFamily: "'Press Start 2P', monospace",
@@ -357,7 +436,7 @@ const ValentineGame: React.FC = () => {
 
             {/* Dialogue */}
             {dialogueNode && DIALOGUE[dialogueNode] && (
-              <DialogueBox node={DIALOGUE[dialogueNode]} top={NPC_POS.y - 120} onChoice={handleChoice} />
+              <DialogueBox node={DIALOGUE[dialogueNode]} top={NPC_POS.y - 155} onChoice={handleChoice} />
             )}
           </>
         )}

@@ -85,6 +85,9 @@ This keeps room/dialogue files declarative and serializable.
 - White floor w/ pink dot pattern; 13 wardrobes (6 visual variants); 13 flowers (tulip/lily/hydrangea)
 - Random door each visit → Room 2. Cat "Poulet" wanders; click → "My name is Poulet!"
 - Baby orangutan slides out from behind the nearest wardrobe within `PEEK_DIST`, retracts on leave
+- Opening hint is a subtle thought bubble over the player (*"...there must be a way out"*), not a
+  bottom pill — it fades out 2s after she first moves (`thoughtBob` / `thoughtFade`), and resets on
+  restart. No `room.hint` is set for room1
 
 ### Room 2 (NPC room)
 - Pink walls, checkerboard floor. Male NPC center; approach + Space to talk. Back door (left) → Room 1
@@ -133,7 +136,8 @@ This keeps room/dialogue files declarative and serializable.
 
 `rainDrop`, `bounceText`, `floatExclaim`, `npcCollapse`, `nyaShake`, `monkeySwing`, `spiderSwing`,
 `flashyGradient`, `peekIn`/`peekInLeft`/`peekInTop` + `peekOut`/`peekOutLeft`/`peekOutTop`,
-`flashIn`, `bouquetPop`, `catWalk`, `shrug`, `fireworkFly`, `fireworkFlash`, `hintPulse`
+`flashIn`, `bouquetPop`, `catWalk`, `shrug`, `fireworkFly`, `fireworkFlash`, `hintPulse`,
+`thoughtBob`, `thoughtFade`
 
 `fireworkFly` uses per-particle `--dx`/`--dy` CSS custom properties to launch each particle
 outward to its target offset.
@@ -147,7 +151,9 @@ outward to its target offset.
   door is re-randomized on each room1 entry)
 - The peek system measures distance/offset from an entity's `footprint`, not its collision `w/h`
 - The NPC's pupils glance toward the player in a single cardinal direction (`look` prop, computed
-  from `ctx.playerPos`), with a small deadzone when the player is very close
+  from `ctx.playerPos`), clamped to ±1px so the eyes stay near center (small deadzone when close)
+- Speech bubbles sit clear of their owners so neither character is hidden: NPC dialogue is anchored
+  at `NPC_POS.y - 155`; the cat bubble floats at `bottom: 165%`
 - The gift blob is shown in whichever of several slots around the NPC is farthest from the player
   (`pickBouquetSlot`), so the player sprite (higher z-index) can't hide it
 - Bottom hints / interaction prompts render as a pulsing pill (`hintPulse`) for visibility

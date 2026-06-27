@@ -7,7 +7,7 @@ import { DialogueNode } from "../engine/types";
 export const DIALOGUE: Record<string, DialogueNode> = {
   question: {
     id: "question",
-    text: "Hey Etoile, do you\nknow what's special\nabout today?",
+    text: "Ello Etoile, do you\nknow what's special\nabout today?",
     choices: [
       { label: "Yes", variant: "primary", action: "choseYes" },
       { label: "No", variant: "secondary", action: "choseNo" },
@@ -15,7 +15,7 @@ export const DIALOGUE: Record<string, DialogueNode> = {
   },
   "no-response": {
     id: "no-response",
-    text: "AAAEEHGG too bad. I guess\ntoday is just like\nany other day.",
+    text: "AAAEEHGG! I guess\ntoday is just like\nany other day.",
     choices: [{ label: "✕ Close", variant: "plain", action: "closeDialogue" }],
   },
   hehe: {

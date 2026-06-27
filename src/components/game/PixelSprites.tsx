@@ -107,8 +107,8 @@ export const MaleSprite: React.FC<{ collapsed?: boolean; shrug?: boolean; look?:
       {/* Face */}
       <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#FDBCB4" }} />
       {/* Eyes — solid black, glance toward the player (one cardinal direction) */}
-      <div className="absolute" style={{ top: 10 + Math.max(-2, Math.min(2, look?.y ?? 0)), left: 10 + Math.max(-2, Math.min(2, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
-      <div className="absolute" style={{ top: 10 + Math.max(-2, Math.min(2, look?.y ?? 0)), left: 20 + Math.max(-2, Math.min(2, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
+      <div className="absolute" style={{ top: 10 + Math.max(-1, Math.min(1, look?.y ?? 0)), left: 10 + Math.max(-1, Math.min(1, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
+      <div className="absolute" style={{ top: 10 + Math.max(-1, Math.min(1, look?.y ?? 0)), left: 20 + Math.max(-1, Math.min(1, look?.x ?? 0)), width: 3, height: 3, background: "#333" }} />
       {/* Smile */}
       <div className="absolute" style={{ top: 14, left: 13, width: 6, height: 2, background: "#C0392B", borderRadius: 2 }} />
       {/* Body / Shirt */}
@@ -515,7 +515,7 @@ export const FlowerSprite: React.FC<{ type: 'tulip' | 'lily' | 'hydrangea' }> = 
   }
   if (type === 'lily') {
     return (
-      <div className="relative" style={{ width: 24, height: 30, imageRendering: "pixelated" }}>
+      <div className="relative" style={{ width: 24, height: 30, imageRendering: "pixelated", filter: "drop-shadow(0 0 1px rgba(150,120,90,0.15))" }}>
         <div className="absolute" style={{ top: 15, left: 11, width: 2, height: 15, background: "#228B22" }} />
         <div className="absolute" style={{ top: 22, left: 2, width: 10, height: 4, background: "#32CD32", borderRadius: "50%", transform: "rotate(-30deg)" }} />
         <div className="absolute" style={{ top: 1, left: 9, width: 6, height: 12, background: "#FFFDE7", borderRadius: "50%" }} />
