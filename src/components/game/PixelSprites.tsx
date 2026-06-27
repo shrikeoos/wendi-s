@@ -24,6 +24,14 @@ export const FemaleSprite: React.FC<{ direction: string }> = ({ direction }) => 
       <div className="absolute" style={{ top: 6, left: 26, width: 4, height: 12, background: "#1A1A1A" }} />
       {/* Face */}
       <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#FDBCB4" }} />
+      {/* Back of head — hair covers the face when walking away */}
+      {direction === "up" && (
+        <>
+          <div className="absolute" style={{ top: 6, left: 6, width: 20, height: 12, background: "#1A1A1A" }} />
+          {/* Hair flowing down her back */}
+          <div className="absolute" style={{ top: 16, left: 7, width: 18, height: 8, background: "#1A1A1A", borderRadius: "0 0 6px 6px", zIndex: 1 }} />
+        </>
+      )}
       {/* Eyes */}
       {direction !== "up" && (
         <>
